@@ -15,6 +15,8 @@ import boids.gui.fx.AppExit
 import io.sarl.lang.core.Address
 import io.sarl.core.Behaviors
 import boids.agents.Scheduler
+import boids.events.BoidRequest
+import boids.events.BoidCreate
 
 /*
  * The main agent able to communicate with the GUI
@@ -82,6 +84,11 @@ agent LaunchingArea {
 	 */
 	on Freeze [!occurrence.isFromMe] {
 		innerContext.defaultSpace.emit(ID, occurrence)
+	}
+	/** Transmit new boid signal.
+	 */
+	on BoidRequest [!occurrence.isFromMe] {
+		innerContext.defaultSpace.emit(ID, new BoidCreate(occurrence.group, occurrence.pos))
 	}
 
 	/*

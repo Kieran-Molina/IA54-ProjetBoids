@@ -101,10 +101,12 @@ agent Boid {
 		
 		for (otherBoid : others) {
 			if (otherBoid.group == this.group) {
-				nbTot++
 				tmp.setXY(otherBoid.speed)
-				tmp.fois( 1 / tmp.length)
-				force.ajouter(tmp)
+				if (tmp.length > 0) {
+					nbTot++
+					tmp.fois( 1 / tmp.length)
+					force.ajouter(tmp)
+				}
 			}
 		}
 		

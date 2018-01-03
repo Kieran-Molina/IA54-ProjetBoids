@@ -25,6 +25,8 @@ import java.util.Random
 import java.util.TreeMap
 import boids.events.Intent
 import io.sarl.core.DefaultContextInteractions
+import boids.events.BoidRequest
+import boids.events.BoidCreate
 
 /** 
  * @author Kiéran
@@ -47,6 +49,9 @@ agent Scheduler {
 	var maxSpeed = Configuration.MAX_SPEED
 	var boidsList : List<UUID>
 	var intents : TreeMap<UUID,Vector2d>
+	var nextBoidPos : Vector2d
+	var nextBoidGroup : int
+	var newBoidRequest = false
 
 	on Initialize [!occurrence.parameters.empty] {
 		loggingName = "SCHEDULER"
@@ -104,6 +109,13 @@ agent Scheduler {
 		var wait = new PauseTransition(0.06.seconds)
 		wait.onFinished = [
 			if (!paused && !exited) {
+				// create new boid if requested
+				if (newBoidRequest){
+					spawnBoid(nextBoidPos, nextBoidGroup)
+					info("created new boid")
+					nextBoidPos = null
+					newBoidRequest=false
+				}
 				// process intents from all boids
 				for (boidID : boidsList) {
 					var actual = grid.getBoidPos(boidID)
@@ -119,8 +131,7 @@ agent Scheduler {
 						}
 						speed = new Vector2d(actual.speed.plus(acceleration))
 					}else{
-						speed = new Vector2d(actual.speed)
-						speed.fois(0.9)
+						speed = actual.speed
 					}
 					
 					if(speed.length > maxSpeed){
@@ -129,8 +140,13 @@ agent Scheduler {
 					}
 
 					// apply forces and speed
-					var position = actual.position.plus(speed)
-					grid.setBoidPosition(boidID, position, speed, actual.group)
+					
+					if (!speed.x.naN && !speed.y.naN) {
+						var position = actual.position.plus(speed)
+						if (!position.x.naN && !position.y.naN){
+							grid.setBoidPosition(boidID, position, speed, actual.group)
+						}
+					}
 				}
 				
 				//after everyone moved
@@ -138,6 +154,7 @@ agent Scheduler {
 					// send new perceptions to each boids
 					this.generatePerception(boidID)
 				}
+				
 			}
 			wait.playFromStart
 		]
@@ -146,6 +163,12 @@ agent Scheduler {
 	
 	on Intent{
 		intents.put(occurrence.source.UUID, occurrence.influence)
+	}
+	
+	on BoidCreate {
+		this.nextBoidPos=occurrence.pos
+		this.nextBoidGroup= occurrence.group
+		this.newBoidRequest=true
 	}
 	
 	def generatePerception(boidID : UUID){

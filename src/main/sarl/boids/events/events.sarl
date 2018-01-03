@@ -57,6 +57,26 @@ event Perception {
 	}
 }
 
+event BoidRequest {
+	val group : int
+	val pos : Vector2d
+	
+	new(g:int, p:Vector2d){
+		group = g
+		pos = p
+	}
+}
+
+event BoidCreate {
+	val group : int
+	val pos : Vector2d
+
+	new(g : int, p : Vector2d) {
+		group = g
+		pos = p
+	}
+}
+
 event Intent {
 	val influence : Vector2d
 	

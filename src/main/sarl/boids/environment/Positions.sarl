@@ -106,5 +106,9 @@ class Positions {
 	def getBoidPos(id : UUID) : BoidPos {
 		boids.get(id)
 	}
+	
+	def getSize : int{
+		boids.size
+	}
 
 }

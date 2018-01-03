@@ -19,6 +19,8 @@ import boids.environment.BoidPos
 import javafx.scene.input.MouseEvent
 import boids.utils.Vector2d
 import javafx.geometry.Point2D
+import javafx.scene.control.RadioButton
+import boids.events.BoidRequest
 
 /** JavaFX controller for fireworks.
  */
@@ -28,6 +30,7 @@ class BoidsFxViewerController extends FxViewerController {
 	var areaCreated = false
 	var grid : Positions
 	var selected : BoidPos
+	var mode = -1
 
 	@FXML var draw_zone : Canvas
 	@FXML var boids0_quantity_display : Label
@@ -38,6 +41,11 @@ class BoidsFxViewerController extends FxViewerController {
 	@FXML var boids1_quantity_input : ScrollBar
 	@FXML var boids2_quantity_input : ScrollBar
 	@FXML var boids3_quantity_input : ScrollBar
+	@FXML var rb_move : RadioButton
+	@FXML var rb_SP0 : RadioButton
+	@FXML var rb_SP1 : RadioButton
+	@FXML var rb_SP2 : RadioButton
+	@FXML var rb_SP3 : RadioButton
 	@FXML var setup_button : Button
 	@FXML var launch_button : Button
 	@FXML var stop_button : Button
@@ -127,6 +135,12 @@ class BoidsFxViewerController extends FxViewerController {
 		launch_button.disable = true
 		stop_button.disable = false
 		setup_button.disable = true
+		rb_move.disable = false
+		rb_SP0.disable = false
+		rb_SP1.disable = false
+		rb_SP2.disable = false
+		rb_SP3.disable = false
+		
 		if (!areaCreated) {
 			emitToAgents(new CreateArea)
 			this.areaCreated = true
@@ -147,11 +161,15 @@ class BoidsFxViewerController extends FxViewerController {
 		var mouse = new Vector2d(draw_zone.parentToLocal(new Point2D(evt.sceneX, evt.sceneY)).x,
 			draw_zone.parentToLocal(new Point2D(evt.sceneX,evt.sceneY)).y)
 		
-		grid.boids([boidPos| boidPos.position.moins(mouse).length < 15]) [boidPos|
-			selected = boidPos
-			boidPos.dragged = true
-			boidPos.speed = new Vector2d(0.0,0.0)
-		]
+		if(mode == -1){
+			grid.boids([boidPos| boidPos.position.moins(mouse).length < 15]) [boidPos|
+				selected = boidPos
+				boidPos.dragged = true
+				boidPos.speed = new Vector2d(0.0,0.0)
+			]
+		}else if(mode >= 0 && mode <=3){
+			emitToAgents(new BoidRequest(mode,mouse))
+		}
 	}
 	@FXML protected def actionMouseDragged(evt : MouseEvent) {
 		if (selected !== null) {
@@ -161,8 +179,10 @@ class BoidsFxViewerController extends FxViewerController {
 		}
 	}
 	@FXML protected def actionMouseReleased() {
-		selected.dragged = false
-		selected = null
+		if (selected !== null){
+			selected.dragged = false
+			selected = null
+		}
 	}
 
 	/** Add a listener on boids groups quantities.
@@ -189,6 +209,22 @@ class BoidsFxViewerController extends FxViewerController {
 		boids3_quantity_input.valueProperty().addListener [
 			boids3_quantity_display.setText(String.format("%.0f", boids3_quantity_input.getValue()));
 		];
+	}
+	
+	@FXML protected def actionRBM {
+		mode = -1
+	}
+	@FXML protected def actionRB0 {
+		mode = 0
+	}
+	@FXML protected def actionRB1 {
+		mode = 1
+	}
+	@FXML protected def actionRB2 {
+		mode = 2
+	}
+	@FXML protected def actionRB3 {
+		mode = 3
 	}
 	
 	def getColor(group : int) : Color{
