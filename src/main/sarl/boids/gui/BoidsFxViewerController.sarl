@@ -149,6 +149,8 @@ class BoidsFxViewerController extends FxViewerController {
 		
 		grid.boids([boidPos| boidPos.position.moins(mouse).length < 15]) [boidPos|
 			selected = boidPos
+			boidPos.dragged = true
+			boidPos.speed = new Vector2d(0.0,0.0)
 		]
 	}
 	@FXML protected def actionMouseDragged(evt : MouseEvent) {
@@ -159,6 +161,7 @@ class BoidsFxViewerController extends FxViewerController {
 		}
 	}
 	@FXML protected def actionMouseReleased() {
+		selected.dragged = false
 		selected = null
 	}
 

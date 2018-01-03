@@ -16,6 +16,7 @@ import io.sarl.core.Lifecycle
 import io.sarl.core.Destroy
 import boids.events.Freeze
 import boids.events.Perception
+import boids.Configuration
 import java.util.UUID
 import java.util.List
 import java.util.ArrayList
@@ -41,9 +42,9 @@ agent Scheduler {
 	var boids1Quantity : int
 	var boids2Quantity : int
 	var boids3Quantity : int
-	var range = 100.0
-	var maxForce = 4.0
-	var maxSpeed = 10.0
+	var range = Configuration.MAX_RANGE
+	var maxForce = Configuration.MAX_FORCE
+	var maxSpeed = Configuration.MAX_SPEED
 	var boidsList : List<UUID>
 	var intents : TreeMap<UUID,Vector2d>
 

@@ -15,6 +15,7 @@ class BoidPos {
 	var position : Vector2d
 	var speed : Vector2d
 	var group : int
+	var dragged = false
 	
 	new {
 		position = new Vector2d
@@ -59,7 +60,14 @@ class BoidPos {
 	def distance(other : BoidPos) : double{
 		this.position.moins(other.position).length
 	}
- 
+	
+	def isDragged : boolean{
+		dragged
+	}
+ 	
+ 	def setDragged(d : boolean){
+ 		dragged = d
+ 	}
 }
 
 /*

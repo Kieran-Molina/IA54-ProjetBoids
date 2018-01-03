@@ -39,15 +39,16 @@ agent Boid {
 		// update own position
 		this.setPositionAndSpeed(occurrence.own)
 		intent = new Vector2d(0.0, 0.0)
-		checkBorder
-		checkStopped
-		
-		// process perception
-		intent.ajouter(separationForce(occurrence.others))
-		intent.ajouter(cohesionForce(occurrence.others))
-		intent.ajouter(alignmentForce(occurrence.others))
-		intent.ajouter(repulsionForce(occurrence.others))
-		
+		if (!occurrence.own.isDragged){
+			checkBorder
+			checkStopped
+			
+			// process perception
+			intent.ajouter(separationForce(occurrence.others))
+			intent.ajouter(cohesionForce(occurrence.others))
+			intent.ajouter(alignmentForce(occurrence.others))
+			intent.ajouter(repulsionForce(occurrence.others))
+		}
 		// Send back its intention
 		defaultContext.defaultSpace.emit(occurrence.source.UUID, new Intent(intent))
 	}
