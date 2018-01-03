@@ -1,0 +1,97 @@
+package boids.agents
+
+import io.sarl.core.Initialize
+import io.sarl.core.InnerContextAccess
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import io.sarl.core.MemberJoined
+import boids.environment.Positions
+import boids.events.CreateArea
+import boids.events.Freeze
+import boids.events.Launch
+import boids.events.SetupSettings
+import boids.gui.BoidsFxViewerController
+import boids.gui.fx.AppExit
+import io.sarl.lang.core.Address
+import io.sarl.core.Behaviors
+import boids.agents.Scheduler
+
+/*
+ * The main agent able to communicate with the GUI
+ */
+agent LaunchingArea {
+	uses Lifecycle, Behaviors, Logging, InnerContextAccess
+
+	val grid = new Positions
+
+	var boids0Quantity : int
+	var boids1Quantity : int
+	var boids2Quantity : int
+	var boids3Quantity : int
+	var maxWidth : double
+	var maxHeight : double
+	var exited = false
+
+	/** Configure according to GUI settings.
+	 */
+	on SetupSettings {
+		this.boids0Quantity = occurrence.boids0Quantity
+		this.boids1Quantity = occurrence.boids1Quantity
+		this.boids2Quantity = occurrence.boids2Quantity
+		this.boids3Quantity = occurrence.boids3Quantity
+		this.maxWidth = occurrence.maxW
+		this.maxHeight = occurrence.maxH
+	}
+
+	/** Kill itself on Exit signal after all inner agent are killed.
+	 */
+	on AppExit [!hasMemberAgent] {
+		killMe
+	}
+
+	/** Transmit Exit signal to all inner agent.
+	 */
+	on AppExit [hasMemberAgent && !exited] {
+		exited = true
+		innerContext.defaultSpace.emit(ID, new AppExit)
+	}
+
+	/** Initialization step without GUI.
+	 */
+	on Initialize [occurrence.parameters.empty] {
+		loggingName = "LaunchingArea-" + this.ID
+	}
+
+	/** Initialization step with GUI.
+	 */
+	on Initialize [!occurrence.parameters.empty] {
+		loggingName = "LaunchingArea-" + this.ID
+		var ctrl = occurrence.parameters.get(0) as BoidsFxViewerController
+		ctrl.UISpace.register(asEventListener)
+		ctrl.listenAndDraw(grid)
+	}
+
+	/** Create and configure Scheduler.
+	 */
+	on CreateArea {
+		spawnInContext(typeof(Scheduler), innerContext, grid, maxWidth, maxHeight, 
+			boids0Quantity, boids1Quantity, boids2Quantity, boids3Quantity)
+	}
+
+	/** Transmit Freeze signal.
+	 */
+	on Freeze [!occurrence.isFromMe] {
+		innerContext.defaultSpace.emit(ID, occurrence)
+	}
+
+	/*
+	 * Start all RocketLauncher when everything is ready
+	 */
+	on MemberJoined [occurrence.inInnerDefaultSpace && memberAgentCount == 1] {
+		info("Scheduler is Ready. Sending Launch signal.")
+		var evt = new Launch
+		evt.source = new Address(innerContext.defaultSpace.spaceID, ID);
+		innerContext.defaultSpace.emit(ID, evt)
+	}
+
+}

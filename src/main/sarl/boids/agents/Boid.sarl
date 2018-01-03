@@ -1,0 +1,144 @@
+package boids.agents
+
+import boids.utils.Vector2d
+import io.sarl.core.Initialize
+import boids.events.Perception
+import boids.environment.BoidPos
+import io.sarl.core.DefaultContextInteractions
+import boids.events.Intent
+import boids.gui.fx.AppExit
+import io.sarl.core.Lifecycle
+import java.util.ArrayList
+import java.util.Random
+
+agent Boid {
+	
+	uses DefaultContextInteractions, Lifecycle
+	
+	var intent : Vector2d
+	var rdm = new Random
+	
+	var position : Vector2d
+	var speed : Vector2d
+	var group : int
+	
+	on Initialize [!occurrence.parameters.empty] {
+		position = occurrence.parameters.get(0) as Vector2d
+		group = occurrence.parameters.get(1) as Integer
+		intent = new Vector2d(0,0)
+		speed = new Vector2d(0,0)
+	}
+	/** Kill itself after an Exit signal.
+	 */
+	on AppExit {
+		emit(new AppExit)
+		killMe
+	}
+	
+	on Perception {
+		// update own position
+		this.setPositionAndSpeed(occurrence.own)
+		intent = new Vector2d(0.0, 0.0)
+		checkBorder
+		checkStopped
+		
+		// process perception
+		intent.ajouter(separationForce(occurrence.others))
+		intent.ajouter(cohesionForce(occurrence.others))
+		intent.ajouter(alignmentForce(occurrence.others))
+		intent.ajouter(repulsionForce(occurrence.others))
+		
+		// Send back its intention
+		defaultContext.defaultSpace.emit(occurrence.source.UUID, new Intent(intent))
+	}
+	
+
+	def setPositionAndSpeed(l : BoidPos){
+		position.setXY(l.getPosition)
+		speed.setXY(l.getSpeed)
+	}
+	
+	def repulsionForce(others : ArrayList<BoidPos>) : Vector2d {
+		var force = new Vector2d(0,0)
+		var tmp= new Vector2d
+		var len : double
+		
+		for ( otherBoid : others) {
+			if (otherBoid.group != this.group) {
+					tmp.setXY(position)
+					tmp.retrancher(otherBoid.position)
+					len = tmp.length
+					tmp.fois( 1 / (len*len) )
+					force.ajouter(tmp)
+			}
+		}
+		return force
+	}
+	def cohesionForce(others : ArrayList<BoidPos>) : Vector2d {
+		var nbTot = 0
+		var force = new Vector2d(0,0)
+		for (otherBoid : others) {
+			if (otherBoid.group == this.group )
+			{
+				nbTot++
+				force.ajouter(otherBoid.position)
+			}
+		}
+		
+		// calcul du barycentre...
+		if (nbTot > 0)
+		{
+			force.fois(1 / nbTot)
+			force.retrancher(position)
+		}
+		return force
+	}
+	def alignmentForce(others : ArrayList<BoidPos>) : Vector2d {
+		var nbTot = 0
+		var tmp = new Vector2d
+		var force = new Vector2d(0,0)
+		
+		for (otherBoid : others) {
+			if (otherBoid.group == this.group) {
+				nbTot++
+				tmp.setXY(otherBoid.speed)
+				tmp.fois( 1 / tmp.length)
+				force.ajouter(tmp)
+			}
+		}
+		
+		if (nbTot > 0) {
+			force.fois( 1 / nbTot )
+		}
+		return force
+	}
+	def separationForce(others : ArrayList<BoidPos>) : Vector2d{
+		var tmp = new Vector2d
+		var force = new Vector2d(0,0)
+		var len : double
+
+		for (otherBoid : others) {
+			if (otherBoid.group == this.group) {
+				tmp.setXY(position)
+				tmp.retrancher(otherBoid.position)
+				len = tmp.length
+				// force en 1/r
+				tmp.fois( 1 / (len*len) )
+				force.ajouter(tmp)
+			}
+		}
+		return force
+	}
+	def checkBorder {
+		if (position.x < 15) intent.ajouter(2.0,0.0)
+		if (position.x > 1025) intent.ajouter(-2.0,0.0)
+		if (position.y < 15) intent.ajouter(0.0,2.0)
+		if (position.y > 725) intent.ajouter(0.0,-2.0)
+	}
+	
+	def checkStopped {
+		if (speed.length == 0.0){
+			intent.ajouter((rdm.nextDouble * 4) - 2.0, (rdm.nextDouble * 4) - 2.0)
+		}
+	}
+}

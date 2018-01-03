@@ -1,0 +1,170 @@
+package boids.agents
+
+
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import boids.events.Launch
+import boids.environment.Positions
+import javafx.animation.PauseTransition
+import boids.gui.fx.AppExit
+
+
+
+import static extension javafx.util.Duration.*
+import io.sarl.core.InnerContextAccess
+import io.sarl.core.Lifecycle
+import io.sarl.core.Destroy
+import boids.events.Freeze
+import boids.events.Perception
+import java.util.UUID
+import java.util.List
+import java.util.ArrayList
+import boids.utils.Vector2d
+import java.util.Random
+import java.util.TreeMap
+import boids.events.Intent
+import io.sarl.core.DefaultContextInteractions
+
+/** 
+ * @author Kiéran
+ * 
+ */
+agent Scheduler {
+	uses Logging, InnerContextAccess, Lifecycle, DefaultContextInteractions
+	
+	var grid : Positions
+	var paused = false
+	var exited = false
+	var maxWidth : double
+	var maxHeight : double
+	var boids0Quantity : int
+	var boids1Quantity : int
+	var boids2Quantity : int
+	var boids3Quantity : int
+	var range = 100.0
+	var maxForce = 4.0
+	var maxSpeed = 10.0
+	var boidsList : List<UUID>
+	var intents : TreeMap<UUID,Vector2d>
+
+	on Initialize [!occurrence.parameters.empty] {
+		loggingName = "SCHEDULER"
+		grid = occurrence.parameters.get(0) as Positions
+		maxWidth = occurrence.parameters.get(1) as Double
+		maxHeight = occurrence.parameters.get(2) as Double
+		boids0Quantity = occurrence.parameters.get(3) as Integer
+		boids1Quantity = occurrence.parameters.get(4) as Integer
+		boids2Quantity = occurrence.parameters.get(5) as Integer
+		boids3Quantity = occurrence.parameters.get(6) as Integer
+		boidsList = new ArrayList<UUID>
+		intents = new TreeMap<UUID, Vector2d>
+
+		// spawn some boids
+		var rnd = new Random
+
+		for (var i = 0; i < boids0Quantity; i++) {
+			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 0)
+		}
+		for (var i = 0; i < boids1Quantity; i++) {
+			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 1)
+		}
+		for (var i = 0; i < boids2Quantity; i++) {
+			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 2)
+		}
+		for (var i = 0; i < boids3Quantity; i++) {
+			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 3)
+		}
+	}
+
+	on Destroy {
+		info("stopped.")
+	}
+	/** Kill itself after an Exit signal.
+	 */
+	on AppExit [!hasMemberAgent] {
+		emit(new AppExit)
+		killMe
+	}
+	/** Transmit an Exit signal to inner context.
+	 */
+	on AppExit [hasMemberAgent && !exited] {
+		exited = true
+		innerContext.defaultSpace.emit(ID, new AppExit)
+	}
+	/** Freeze signal.
+	 */
+	on Freeze [!occurrence.isFromMe] {
+		paused = occurrence.value
+		//innerContext.defaultSpace.emit(ID, occurrence)
+	}
+
+	on Launch {
+		
+		var wait = new PauseTransition(0.06.seconds)
+		wait.onFinished = [
+			if (!paused && !exited) {
+				// process intents from all boids
+				for (boidID : boidsList) {
+					var actual = grid.getBoidPos(boidID)
+					var acceleration = intents.remove(boidID)
+					var speed : Vector2d
+					
+					// process speed and intents if present
+					
+					if (acceleration !== null){
+						if(acceleration.length > maxForce){
+							acceleration.normaliser
+							acceleration.fois(maxForce)
+						}
+						speed = new Vector2d(actual.speed.plus(acceleration))
+					}else{
+						speed = new Vector2d(actual.speed)
+						speed.fois(0.9)
+					}
+					
+					if(speed.length > maxSpeed){
+						speed.normaliser
+						speed.fois(maxSpeed)
+					}
+
+					// apply forces and speed
+					var position = actual.position.plus(speed)
+					grid.setBoidPosition(boidID, position, speed, actual.group)
+				}
+				
+				//after everyone moved
+				for (boidID : boidsList) {
+					// send new perceptions to each boids
+					this.generatePerception(boidID)
+				}
+			}
+			wait.playFromStart
+		]
+		wait.play
+	}
+	
+	on Intent{
+		intents.put(occurrence.source.UUID, occurrence.influence)
+	}
+	
+	def generatePerception(boidID : UUID){
+		var boidPos = grid.getBoidPos(boidID)
+		var perception = new Perception(boidPos)
+//		grid.boids([other | boidPos.distance(other) < range]) [ other |
+//			perception.map.put(, other)
+//		]
+		for (otherID : boidsList){
+			if (otherID != boidID){
+				var otherPos = grid.getBoidPos(otherID)
+				if (boidPos.distance(otherPos) <= range) perception.others.add(otherPos)
+			}
+		}
+		innerContext.defaultSpace.emit(boidID, perception)
+	}
+	
+	def spawnBoid(pos : Vector2d, group : int){
+		var idBoid = spawnInContext(typeof(Boid), innerContext, pos, group)
+		boidsList.add(idBoid)
+		grid.setBoidPosition(idBoid, pos, new Vector2d(0,0),group)
+	}
+}

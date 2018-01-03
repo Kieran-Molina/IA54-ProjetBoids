@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane fx:id="main_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boids.gui.BoidsFxViewerController">
+   <children>
+      <Canvas fx:id="draw_zone" height="739.0" layoutX="245.0" layoutY="16.0" onMouseDragged="#actionMouseDragged" onMousePressed="#actionMousePressed" onMouseReleased="#actionMouseReleased" rotate="180.0" width="1041.0" />
+      <Button fx:id="setup_button" layoutX="26.0" layoutY="45.0" mnemonicParsing="false" onAction="#actionSetup" text="%SetupButtonText">
+         <tooltip>
+            <Tooltip text="%SetupButtonTooltip" />
+         </tooltip></Button>
+      <Button fx:id="launch_button" disable="true" layoutX="26.0" layoutY="89.0" mnemonicParsing="false" onAction="#actionLaunch" text="%LaunchButtonText">
+         <tooltip>
+            <Tooltip text="%LaunchButtonTooltip" />
+         </tooltip></Button>
+      <AnchorPane layoutX="30.0" layoutY="145.0">
+         <children>
+            <ScrollBar fx:id="boids0_quantity_input" blockIncrement="5.0" max="20.0" min="1.0" onMouseEntered="#actionBoids0QuantityDisplay" prefHeight="17.0" prefWidth="159.0" value="3.0">
+               </ScrollBar>
+            <Label fx:id="boids0_quantity_display" layoutX="135.0" layoutY="17.0" prefHeight="17.0" prefWidth="46.0" text="3" textAlignment="RIGHT" textFill="RED" />
+            <Label layoutY="17.0" prefHeight="17.0" prefWidth="141.0" text="%Boids0QuantityLabelText" />
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="27.0" layoutY="255.0">
+         <children>
+            <Label layoutX="4.0" layoutY="17.0" text="%Boids2QuantityLabelText" />
+            <Label fx:id="boids2_quantity_display" layoutX="135.0" layoutY="17.0" prefHeight="17.0" prefWidth="46.0" text="0" textAlignment="RIGHT" textFill="LIME" />
+            <ScrollBar fx:id="boids2_quantity_input" blockIncrement="5.0" layoutX="4.0" max="20.0" onMouseEntered="#actionBoids2QuantityDisplay" prefHeight="17.0" prefWidth="159.0">
+               </ScrollBar>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="30.0" layoutY="199.0">
+         <children>
+            <ScrollBar fx:id="boids1_quantity_input" blockIncrement="5.0" max="20.0" onMouseEntered="#actionBoids1QuantityDisplay" prefHeight="17.0" prefWidth="159.0" value="3.0">
+               </ScrollBar>
+            <Label layoutY="20.0" text="%Boids1QuantityLabelText" />
+            <Label fx:id="boids1_quantity_display" layoutX="135.0" layoutY="20.0" prefHeight="17.0" prefWidth="46.0" text="3" textAlignment="RIGHT" textFill="BLUE" />
+         </children>
+      </AnchorPane>
+      <Button fx:id="stop_button" disable="true" layoutX="117.0" layoutY="89.0" mnemonicParsing="false" onAction="#actionStop" text="%StopButtonText">
+         <tooltip>
+            <Tooltip text="%StopButtonTooltip" />
+         </tooltip></Button>
+      <AnchorPane layoutX="27.0" layoutY="305.0">
+         <children>
+            <Label layoutX="4.0" layoutY="17.0" text="%Boids3QuantityLabelText" />
+            <Label fx:id="boids3_quantity_display" layoutX="135.0" layoutY="17.0" prefHeight="17.0" prefWidth="46.0" text="0" textAlignment="RIGHT" textFill="YELLOW" />
+            <ScrollBar fx:id="boids3_quantity_input" blockIncrement="5.0" layoutX="4.0" max="20.0" onMouseEntered="#actionBoids3QuantityDisplay" prefHeight="17.0" prefWidth="159.0">
+            </ScrollBar>
+         </children>
+      </AnchorPane>
+   </children>
+</Pane>

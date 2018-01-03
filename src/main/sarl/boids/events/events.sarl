@@ -1,0 +1,66 @@
+package boids.events
+
+import java.util.HashMap
+import java.util.UUID
+import boids.environment.BoidPos
+import boids.utils.Vector2d
+import java.util.ArrayList
+
+event Launch
+
+/* Setup the Area.
+ */
+event CreateArea
+
+/* Carry all setup informations, send by the GUI.
+ */
+event SetupSettings {
+	val boids0Quantity : int
+	val boids1Quantity : int
+	val boids2Quantity : int
+	val boids3Quantity : int
+	val maxH : double
+	val maxW : double
+
+	new(bq0 : int, bq1 : int, bq2 : int, bq3 : int, mW : double, mH : double) {
+		boids0Quantity = bq0
+		boids1Quantity = bq1
+		boids2Quantity = bq2
+		boids3Quantity = bq3
+		maxH = mH
+		maxW = mW
+	}
+
+}
+
+/* Freeze signal send by the GUI.
+ */
+event Freeze {
+	val value : boolean
+
+	new (value : boolean) {
+		this.value = value
+	}
+
+}
+
+event Perception {
+			/* 
+		 * contains the boid himself and all obstacles in range
+		 */
+	val own : BoidPos
+	val others : ArrayList<BoidPos>
+	
+	new (own : BoidPos) {
+		this.others = new ArrayList
+		this.own = own
+	}
+}
+
+event Intent {
+	val influence : Vector2d
+	
+	new (influence : Vector2d){
+		this.influence=influence
+	}
+}

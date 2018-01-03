@@ -1,0 +1,21 @@
+package boids
+
+import boids.gui.BoidsFxApplication
+import boids.gui.fx.FxApplication
+import boids.gui.fx.FxBootAgent
+import io.sarl.lang.core.Agent
+import boids.agents.LaunchingArea
+
+/** Agent that is responsible of the application launching.
+ */
+agent BoidsLauncher extends FxBootAgent {
+	
+	def getFxApplicationType : Class<? extends FxApplication> {
+		typeof(BoidsFxApplication)
+	}
+
+	def getApplicationBootAgentType : Class<? extends Agent> {
+		typeof(LaunchingArea)
+	}
+
+}

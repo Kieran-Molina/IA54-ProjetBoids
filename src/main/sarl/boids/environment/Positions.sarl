@@ -1,0 +1,102 @@
+package boids.environment
+
+
+import java.util.UUID
+import java.util.function.Consumer
+import java.util.function.Predicate
+import java.util.HashMap
+import boids.utils.Vector2d
+
+/**
+ * Data structure used to represent a boid position.
+ */
+class BoidPos {
+
+	var position : Vector2d
+	var speed : Vector2d
+	var group : int
+	
+	new {
+		position = new Vector2d
+		speed = new Vector2d
+	}
+	
+	new (pos : Vector2d, spd : Vector2d, grp : int){
+		position=pos
+		speed=spd
+		group=grp
+	}
+
+	def getPosition : Vector2d{
+		position
+	}
+	
+	def getSpeed : Vector2d{
+		speed
+	}
+
+	def setPosition(position : Vector2d) {
+		this.position = position
+	}
+	
+	def setSpeed(speed : Vector2d){
+		this.speed = speed
+	}
+	
+	def setPS(pos : Vector2d, spd : Vector2d){
+		this.position = pos
+		this.speed = spd
+	}
+
+	def getGroup : int{
+		group
+	}
+
+	def setGroup(group : int) {
+		this.group = group
+	}
+	
+	def distance(other : BoidPos) : double{
+		this.position.moins(other.position).length
+	}
+ 
+}
+
+/*
+ * Data structure referencing every position of every fire and rocket existing
+ * This object is read by the GUI for display.
+ */
+class Positions {
+	
+	val boids = new HashMap<UUID, BoidPos>
+
+	def setBoidPosition(id : UUID, position : Vector2d, speed : Vector2d, group : int) {
+		
+		synchronized (boids) {
+	 		if (boids.containsKey(id)) {
+				boids.get(id).setPS(position, speed)
+			} else {
+				boids.put(id, new BoidPos(position, speed, group))
+			}
+		}
+	}
+
+	def removeRocketPosition(id : UUID) {
+		synchronized (boids) {
+			boids.remove(id)
+		}
+	}
+
+
+	def boids(filter : Predicate<? super BoidPos>,
+		procedure : Consumer<? super BoidPos>) {
+		synchronized (boids) {
+			boids.values.stream.filter(filter).forEach(procedure)
+		}
+	}
+	
+	def getBoidPos(id : UUID) : BoidPos {
+		boids.get(id)
+	}
+
+}

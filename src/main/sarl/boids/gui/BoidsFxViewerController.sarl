@@ -1,0 +1,200 @@
+package boids.gui
+
+import boids.events.CreateArea
+import boids.events.Freeze
+import boids.events.SetupSettings
+import boids.gui.fx.FxViewerController
+import javafx.animation.PauseTransition
+import javafx.fxml.FXML
+import javafx.scene.canvas.Canvas
+import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.control.ScrollBar
+
+import static extension javafx.util.Duration.*
+import boids.environment.Positions
+import javafx.scene.paint.Color
+import javafx.scene.shape.ArcType
+import boids.environment.BoidPos
+import javafx.scene.input.MouseEvent
+import boids.utils.Vector2d
+import javafx.geometry.Point2D
+
+/** JavaFX controller for fireworks.
+ */
+class BoidsFxViewerController extends FxViewerController {
+
+	var launched = false
+	var areaCreated = false
+	var grid : Positions
+	var selected : BoidPos
+
+	@FXML var draw_zone : Canvas
+	@FXML var boids0_quantity_display : Label
+	@FXML var boids1_quantity_display : Label
+	@FXML var boids2_quantity_display : Label
+	@FXML var boids3_quantity_display : Label
+	@FXML var boids0_quantity_input : ScrollBar
+	@FXML var boids1_quantity_input : ScrollBar
+	@FXML var boids2_quantity_input : ScrollBar
+	@FXML var boids3_quantity_input : ScrollBar
+	@FXML var setup_button : Button
+	@FXML var launch_button : Button
+	@FXML var stop_button : Button
+
+
+	/**  Get boids 0 quantity.
+	 */
+	def getBoids0Quantity : int {
+		boids0_quantity_input.value as int
+	}
+	/** Get boids 1 quantity.
+	 */
+	def getBoids1Quantity : int {
+		boids1_quantity_input.value as int
+	}
+	/** Get boids 2 quantity.
+	 */
+	def getBoids2Quantity : int {
+		boids2_quantity_input.value as int
+	}
+	/** Get boids 4 quantity.
+	 */
+	def getBoids3Quantity : int {
+		boids3_quantity_input.value as int
+	}
+
+
+	/** Draw every positions on the main canvas.
+	 */
+	def listenAndDraw(grid : Positions) {
+		this.grid = grid
+		var gc = draw_zone.graphicsContext2D
+		var wait = new PauseTransition(0.06.seconds)
+
+		wait.onFinished = [
+			gc.clearRect(0, 0, draw_zone.width, draw_zone.height)
+			grid.boids([true]) [ boid |
+				gc.fill = getColor(boid.group)
+				gc.stroke = getColor(boid.group)
+				gc.strokeOval(boid.position.x, boid.position.y, 15, 15)
+				gc.fillArc(
+					boid.position.x,
+					boid.position.y,
+					15.0,
+					15.0,
+					Math.toDegrees(-boid.speed.angle) - 210.0,
+					60.0,
+					ArcType.ROUND
+				)
+			]
+			wait.playFromStart
+		]
+		wait.play
+	}
+
+	/** Create main SARL agent and do setup.
+	 */
+	@FXML protected def actionSetup {
+		var ^event = new SetupSettings(
+			this.boids0Quantity,
+			this.boids1Quantity,
+			this.boids2Quantity,
+			this.boids3Quantity,
+			this.draw_zone.width,
+			this.draw_zone.height
+		)
+		if (!launched) {
+			startAgentApplication() [
+				emitToAgents(^event)
+			]
+			launch_button.disable = false
+			launched = true
+			areaCreated = false
+			boids0_quantity_input.disable = true
+			boids1_quantity_input.disable = true
+			boids2_quantity_input.disable = true
+			boids3_quantity_input.disable = true
+			setup_button.disable = true
+		} else {
+			emitToAgents(^event)
+		}
+	}
+
+	/** Launch boids.
+	 */
+	@FXML protected def actionLaunch {
+		launch_button.disable = true
+		stop_button.disable = false
+		setup_button.disable = true
+		if (!areaCreated) {
+			emitToAgents(new CreateArea)
+			this.areaCreated = true
+		} else {
+			emitToAgents(new Freeze(false))
+		}
+	}
+
+	/** Stop.
+	 */
+	@FXML protected def actionStop {
+		stop_button.disable = true
+		launch_button.disable = false
+		emitToAgents(new Freeze(true))
+	}
+
+	@FXML protected def actionMousePressed(evt : MouseEvent) {
+		var mouse = new Vector2d(draw_zone.parentToLocal(new Point2D(evt.sceneX, evt.sceneY)).x,
+			draw_zone.parentToLocal(new Point2D(evt.sceneX,evt.sceneY)).y)
+		
+		grid.boids([boidPos| boidPos.position.moins(mouse).length < 15]) [boidPos|
+			selected = boidPos
+		]
+	}
+	@FXML protected def actionMouseDragged(evt : MouseEvent) {
+		if (selected !== null) {
+			var mouse = new Vector2d(draw_zone.parentToLocal(new Point2D(evt.sceneX, evt.sceneY)).x,
+				draw_zone.parentToLocal(new Point2D(evt.sceneX, evt.sceneY)).y)
+			selected.position = mouse
+		}
+	}
+	@FXML protected def actionMouseReleased() {
+		selected = null
+	}
+
+	/** Add a listener on boids groups quantities.
+	 */
+	@FXML protected def actionBoids0QuantityDisplay {
+		boids0_quantity_input.valueProperty.addListener [
+			boids0_quantity_display.text = String::format("%.0f", boids0_quantity_input.value)
+		]
+	}
+
+	@FXML protected def actionBoids1QuantityDisplay {
+		boids1_quantity_input.valueProperty().addListener [
+			boids1_quantity_display.setText(String.format("%.0f", boids1_quantity_input.getValue()));
+		];
+	}
+
+	@FXML protected def actionBoids2QuantityDisplay {
+		boids2_quantity_input.valueProperty().addListener [
+			boids2_quantity_display.setText(String.format("%.0f", boids2_quantity_input.getValue()));
+		];
+	}
+
+	@FXML protected def actionBoids3QuantityDisplay {
+		boids3_quantity_input.valueProperty().addListener [
+			boids3_quantity_display.setText(String.format("%.0f", boids3_quantity_input.getValue()));
+		];
+	}
+	
+	def getColor(group : int) : Color{
+		switch (group){
+			case 0 : return Color.RED
+			case 1 : return Color.BLUE
+			case 2 : return Color.GREEN
+			case 3 : return Color.YELLOW
+			default: return Color.BLACK
+		}
+	}
+}
