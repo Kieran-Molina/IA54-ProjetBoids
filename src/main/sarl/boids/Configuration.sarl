@@ -3,8 +3,8 @@ package boids
 final class Configuration {
 
 	
-	public static val MAX_SPEED = 10.0
-	public static val MAX_FORCE = 4.0
+	public static val MAX_SPEED = 5.0
+	public static val MAX_FORCE = 10.0
 	public static val MAX_RANGE = 100.0
 	
 	private new() {

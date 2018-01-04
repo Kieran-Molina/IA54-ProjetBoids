@@ -1,10 +1,10 @@
 package boids.events
 
-import java.util.HashMap
-import java.util.UUID
+
 import boids.environment.BoidPos
 import boids.utils.Vector2d
 import java.util.ArrayList
+import boids.environment.ObsPos
 
 event Launch
 
@@ -43,6 +43,16 @@ event Freeze {
 	}
 
 }
+/* Freeze signal send by the GUI.
+ */
+event Pause {
+	val value : boolean
+
+	new (value : boolean) {
+		this.value = value
+	}
+
+}
 
 event Perception {
 			/* 
@@ -50,9 +60,11 @@ event Perception {
 		 */
 	val own : BoidPos
 	val others : ArrayList<BoidPos>
+	val obstacles : ArrayList<ObsPos>
 	
 	new (own : BoidPos) {
 		this.others = new ArrayList
+		this.obstacles = new ArrayList
 		this.own = own
 	}
 }
@@ -67,6 +79,16 @@ event BoidRequest {
 	}
 }
 
+event ObstacleRequest {
+	val p1 : Vector2d
+	val p2 : Vector2d
+	
+	new (p1 : Vector2d, p2:Vector2d){
+		this.p1=p1
+		this.p2=p2
+	}
+}
+
 event BoidCreate {
 	val group : int
 	val pos : Vector2d
@@ -74,6 +96,16 @@ event BoidCreate {
 	new(g : int, p : Vector2d) {
 		group = g
 		pos = p
+	}
+}
+
+event ObstacleCreate {
+	val p1 : Vector2d
+	val p2 : Vector2d
+
+	new (p1 : Vector2d, p2 : Vector2d) {
+		this.p1 = p1
+		this.p2 = p2
 	}
 }
 

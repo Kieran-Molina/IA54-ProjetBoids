@@ -6,6 +6,7 @@ import java.util.function.Consumer
 import java.util.function.Predicate
 import java.util.HashMap
 import boids.utils.Vector2d
+import java.util.ArrayList
 
 /**
  * Data structure used to represent a boid position.
@@ -61,6 +62,10 @@ class BoidPos {
 		this.position.moins(other.position).length
 	}
 	
+	def distance(point : Vector2d) : double {
+		this.position.moins(point).length
+	}
+	
 	def isDragged : boolean{
 		dragged
 	}
@@ -71,12 +76,45 @@ class BoidPos {
 }
 
 /*
+ * Data structure used to represent an obstacle position as a Line.
+ */
+class ObsPos{
+	var pt1 : Vector2d
+	var pt2 : Vector2d
+	
+	new (p1 : Vector2d, p2 : Vector2d){
+		pt1=p1
+		pt2=p2
+	}
+	
+	def getPoint1 : Vector2d{
+		pt1
+	}
+	def getPoint2 : Vector2d{
+		pt2
+	}
+	
+	def getNearestPoint(p : Vector2d) : Vector2d{
+		var dx = pt2.x - pt1.x
+		var dy = pt2.y - pt1.y
+		if(dy == 0 && dx == 0) return pt1
+		
+		var u = ((p.x - pt1.x)*dx + (p.y - pt1.y)*dy) / ((dx*dx)+(dy*dy))
+		
+		if(u<0) return pt1
+		else if(u>1) return pt2
+		else return new Vector2d(pt1.x+(u*dx), pt1.y+(u*dy))
+	}
+}
+
+/*
  * Data structure referencing every position of every fire and rocket existing
  * This object is read by the GUI for display.
  */
 class Positions {
 	
 	val boids = new HashMap<UUID, BoidPos>
+	val obstacles = new ArrayList<ObsPos>
 
 	def setBoidPosition(id : UUID, position : Vector2d, speed : Vector2d, group : int) {
 		
@@ -88,8 +126,14 @@ class Positions {
 			}
 		}
 	}
+	
+	def setObstaclePosition(p1 : Vector2d, p2 : Vector2d){
+		synchronized (obstacles){
+			obstacles.add(new ObsPos(p1,p2))
+		}
+	}
 
-	def removeRocketPosition(id : UUID) {
+	def removeBoidPosition(id : UUID) {
 		synchronized (boids) {
 			boids.remove(id)
 		}
@@ -100,6 +144,12 @@ class Positions {
 		procedure : Consumer<? super BoidPos>) {
 		synchronized (boids) {
 			boids.values.stream.filter(filter).forEach(procedure)
+		}
+	}
+
+	def obstacles(filter : Predicate<? super ObsPos>, procedure : Consumer<? super ObsPos>) {
+		synchronized (obstacles) {
+			obstacles.stream.filter(filter).forEach(procedure)
 		}
 	}
 	

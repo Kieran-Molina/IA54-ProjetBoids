@@ -10,6 +10,7 @@ import boids.gui.fx.AppExit
 import io.sarl.core.Lifecycle
 import java.util.ArrayList
 import java.util.Random
+import boids.environment.ObsPos
 
 agent Boid {
 	
@@ -48,6 +49,8 @@ agent Boid {
 			intent.ajouter(cohesionForce(occurrence.others))
 			intent.ajouter(alignmentForce(occurrence.others))
 			intent.ajouter(repulsionForce(occurrence.others))
+			
+			intent.ajouter(evitementForce(occurrence.obstacles))
 		}
 		// Send back its intention
 		defaultContext.defaultSpace.emit(occurrence.source.UUID, new Intent(intent))
@@ -57,6 +60,7 @@ agent Boid {
 	def setPositionAndSpeed(l : BoidPos){
 		position.setXY(l.getPosition)
 		speed.setXY(l.getSpeed)
+		group = l.group
 	}
 	
 	def repulsionForce(others : ArrayList<BoidPos>) : Vector2d {
@@ -69,7 +73,7 @@ agent Boid {
 					tmp.setXY(position)
 					tmp.retrancher(otherBoid.position)
 					len = tmp.length
-					tmp.fois( 1 / (len*len) )
+					tmp.fois( 3 / (len*len) )
 					force.ajouter(tmp)
 			}
 		}
@@ -82,6 +86,7 @@ agent Boid {
 			if (otherBoid.group == this.group )
 			{
 				nbTot++
+				
 				force.ajouter(otherBoid.position)
 			}
 		}
@@ -89,8 +94,9 @@ agent Boid {
 		// calcul du barycentre...
 		if (nbTot > 0)
 		{
-			force.fois(1 / nbTot)
+			force.fois(1 / (nbTot))
 			force.retrancher(position)
+			force.fois(0.1)
 		}
 		return force
 	}
@@ -111,7 +117,7 @@ agent Boid {
 		}
 		
 		if (nbTot > 0) {
-			force.fois( 1 / nbTot )
+			force.fois( 0.05 / nbTot )
 		}
 		return force
 	}
@@ -126,12 +132,28 @@ agent Boid {
 				tmp.retrancher(otherBoid.position)
 				len = tmp.length
 				// force en 1/r
-				tmp.fois( 1 / (len*len) )
+				tmp.fois( 5 / (len*len) )
 				force.ajouter(tmp)
 			}
 		}
 		return force
 	}
+	
+	def evitementForce(obstacles : ArrayList<ObsPos>) : Vector2d {
+		var force = new Vector2d(0, 0)
+		var tmp = new Vector2d
+		var len : double
+
+		for (obs : obstacles) {
+				tmp.setXY(position)
+				tmp.retrancher(obs.getNearestPoint(position))
+				len = tmp.length
+				tmp.fois(20 / (len * len))
+				force.ajouter(tmp)
+		}
+		return force
+	}
+	
 	def checkBorder {
 		if (position.x < 15) intent.ajouter(2.0,0.0)
 		if (position.x > 1025) intent.ajouter(-2.0,0.0)

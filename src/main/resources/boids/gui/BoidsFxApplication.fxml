@@ -69,6 +69,7 @@
             <RadioButton fx:id="rb_SP1" disable="true" layoutX="14.0" layoutY="63.0" mnemonicParsing="false" onAction="#actionRB1" text="%MouseSP1" textFill="#f9fafb" toggleGroup="$mode" />
             <RadioButton fx:id="rb_SP2" disable="true" layoutX="14.0" layoutY="80.0" mnemonicParsing="false" onAction="#actionRB2" text="%MouseSP2" textFill="#f9fafb" toggleGroup="$mode" />
             <RadioButton fx:id="rb_SP3" disable="true" layoutX="14.0" layoutY="97.0" mnemonicParsing="false" onAction="#actionRB3" text="%MouseSP3" textFill="#f9fafb" toggleGroup="$mode" />
+            <RadioButton fx:id="rb_Obs" disable="true" layoutX="14.0" layoutY="126.0" mnemonicParsing="false" onAction="#actionRBObs" text="%MouseObs" textFill="#f9fafb" toggleGroup="$mode" />
          </children>
       </AnchorPane>
    </children>

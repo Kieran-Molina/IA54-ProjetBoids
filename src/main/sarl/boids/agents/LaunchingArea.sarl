@@ -17,6 +17,9 @@ import io.sarl.core.Behaviors
 import boids.agents.Scheduler
 import boids.events.BoidRequest
 import boids.events.BoidCreate
+import boids.events.Pause
+import boids.events.ObstacleRequest
+import boids.events.ObstacleCreate
 
 /*
  * The main agent able to communicate with the GUI
@@ -83,12 +86,17 @@ agent LaunchingArea {
 	/** Transmit Freeze signal.
 	 */
 	on Freeze [!occurrence.isFromMe] {
-		innerContext.defaultSpace.emit(ID, occurrence)
+		innerContext.defaultSpace.emit(ID, new Pause(occurrence.value))
 	}
 	/** Transmit new boid signal.
 	 */
 	on BoidRequest [!occurrence.isFromMe] {
 		innerContext.defaultSpace.emit(ID, new BoidCreate(occurrence.group, occurrence.pos))
+	}
+	/** Transmit new boid signal.
+	 */
+	on ObstacleRequest [!occurrence.isFromMe] {
+		innerContext.defaultSpace.emit(ID, new ObstacleCreate(occurrence.p1, occurrence.p2))
 	}
 
 	/*

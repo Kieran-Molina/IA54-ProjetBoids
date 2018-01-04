@@ -27,6 +27,8 @@ import boids.events.Intent
 import io.sarl.core.DefaultContextInteractions
 import boids.events.BoidRequest
 import boids.events.BoidCreate
+import boids.events.Pause
+import boids.events.ObstacleCreate
 
 /** 
  * @author Kiéran
@@ -52,6 +54,9 @@ agent Scheduler {
 	var nextBoidPos : Vector2d
 	var nextBoidGroup : int
 	var newBoidRequest = false
+	var nextObsP1 : Vector2d
+	var nextObsP2 : Vector2d
+	var newObstacleRequest = false
 
 	on Initialize [!occurrence.parameters.empty] {
 		loggingName = "SCHEDULER"
@@ -80,6 +85,8 @@ agent Scheduler {
 		for (var i = 0; i < boids3Quantity; i++) {
 			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 3)
 		}
+		
+		this.spawnObstacle(new Vector2d(10,100),new Vector2d(100,10))
 	}
 
 	on Destroy {
@@ -99,7 +106,7 @@ agent Scheduler {
 	}
 	/** Freeze signal.
 	 */
-	on Freeze [!occurrence.isFromMe] {
+	on Pause [!occurrence.isFromMe] {
 		paused = occurrence.value
 		//innerContext.defaultSpace.emit(ID, occurrence)
 	}
@@ -115,6 +122,13 @@ agent Scheduler {
 					info("created new boid")
 					nextBoidPos = null
 					newBoidRequest=false
+				}
+				// create new Obstacle if requested
+				if(newObstacleRequest){
+					spawnObstacle(nextObsP1,nextObsP2)
+					nextObsP1=null
+					nextObsP2=null
+					newObstacleRequest=false
 				}
 				// process intents from all boids
 				for (boidID : boidsList) {
@@ -143,7 +157,14 @@ agent Scheduler {
 					
 					if (!speed.x.naN && !speed.y.naN) {
 						var position = actual.position.plus(speed)
-						if (!position.x.naN && !position.y.naN){
+						if (!position.x.naN && !position.y.naN) {
+
+							// out of the world
+							if (position.x < 0) position.x = 5
+							if (position.x > maxWidth) position.x = maxWidth - 5
+							if (position.y < 0) position.y = 5
+							if (position.y > maxHeight) position.y = maxHeight - 5
+							
 							grid.setBoidPosition(boidID, position, speed, actual.group)
 						}
 					}
@@ -171,12 +192,18 @@ agent Scheduler {
 		this.newBoidRequest=true
 	}
 	
+	on ObstacleCreate {
+		this.nextObsP1 = occurrence.p1
+		this.nextObsP2 = occurrence.p2
+		this.newObstacleRequest = true
+	}
+	
 	def generatePerception(boidID : UUID){
 		var boidPos = grid.getBoidPos(boidID)
 		var perception = new Perception(boidPos)
-//		grid.boids([other | boidPos.distance(other) < range]) [ other |
-//			perception.map.put(, other)
-//		]
+		grid.obstacles([obs | boidPos.distance(obs.getNearestPoint(boidPos.position)) < range]) [ obs |
+			perception.obstacles.add(obs)
+		]
 		for (otherID : boidsList){
 			if (otherID != boidID){
 				var otherPos = grid.getBoidPos(otherID)
@@ -190,5 +217,9 @@ agent Scheduler {
 		var idBoid = spawnInContext(typeof(Boid), innerContext, pos, group)
 		boidsList.add(idBoid)
 		grid.setBoidPosition(idBoid, pos, new Vector2d(0,0),group)
+	}
+	
+	def spawnObstacle(p1 : Vector2d, p2 : Vector2d){
+		grid.setObstaclePosition(p1,p2)
 	}
 }
