@@ -20,6 +20,8 @@ import boids.events.BoidCreate
 import boids.events.Pause
 import boids.events.ObstacleRequest
 import boids.events.ObstacleCreate
+import boids.events.DestructRequest
+import boids.events.Destruct
 
 /*
  * The main agent able to communicate with the GUI
@@ -93,10 +95,15 @@ agent LaunchingArea {
 	on BoidRequest [!occurrence.isFromMe] {
 		innerContext.defaultSpace.emit(ID, new BoidCreate(occurrence.group, occurrence.pos))
 	}
-	/** Transmit new boid signal.
+	/** Transmit new obsacle signal.
 	 */
 	on ObstacleRequest [!occurrence.isFromMe] {
 		innerContext.defaultSpace.emit(ID, new ObstacleCreate(occurrence.p1, occurrence.p2))
+	}
+	/** Transmit destruct signal.
+	 */
+	on DestructRequest [!occurrence.isFromMe] {
+		innerContext.defaultSpace.emit(ID, new Destruct(occurrence.pos))
 	}
 
 	/*

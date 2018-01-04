@@ -5,6 +5,7 @@ import boids.environment.BoidPos
 import boids.utils.Vector2d
 import java.util.ArrayList
 import boids.environment.ObsPos
+import java.util.UUID
 
 event Launch
 
@@ -54,6 +55,14 @@ event Pause {
 
 }
 
+event StopBoid{
+	val id : UUID
+	
+	new (i : UUID){
+		id=i
+	}
+}
+
 event Perception {
 			/* 
 		 * contains the boid himself and all obstacles in range
@@ -75,6 +84,14 @@ event BoidRequest {
 	
 	new(g:int, p:Vector2d){
 		group = g
+		pos = p
+	}
+}
+
+event DestructRequest {
+	val pos : Vector2d
+
+	new(p : Vector2d) {
 		pos = p
 	}
 }
@@ -106,6 +123,14 @@ event ObstacleCreate {
 	new (p1 : Vector2d, p2 : Vector2d) {
 		this.p1 = p1
 		this.p2 = p2
+	}
+}
+
+event Destruct {
+	val pos : Vector2d
+
+	new(p : Vector2d) {
+		pos = p
 	}
 }
 

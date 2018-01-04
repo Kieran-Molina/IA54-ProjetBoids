@@ -46,8 +46,10 @@ class BoidPos {
 	}
 	
 	def setPS(pos : Vector2d, spd : Vector2d){
-		this.position = pos
-		this.speed = spd
+		if (!dragged){
+			this.position = pos
+			this.speed = spd
+		}
 	}
 
 	def getGroup : int{
@@ -151,6 +153,10 @@ class Positions {
 		synchronized (obstacles) {
 			obstacles.stream.filter(filter).forEach(procedure)
 		}
+	}
+	
+	def obsList : ArrayList<ObsPos>{
+		obstacles
 	}
 	
 	def getBoidPos(id : UUID) : BoidPos {

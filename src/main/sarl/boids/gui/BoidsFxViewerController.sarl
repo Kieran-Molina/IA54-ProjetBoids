@@ -22,12 +22,16 @@ import javafx.geometry.Point2D
 import javafx.scene.control.RadioButton
 import boids.events.BoidRequest
 import boids.events.ObstacleRequest
+import boids.events.DestructRequest
+import javafx.scene.input.KeyEvent
+import javafx.scene.input.KeyCode
 
 /** JavaFX controller for fireworks.
  */
 class BoidsFxViewerController extends FxViewerController {
 
 	var launched = false
+	var paused = true
 	var areaCreated = false
 	var grid : Positions
 	var selected : BoidPos
@@ -51,6 +55,7 @@ class BoidsFxViewerController extends FxViewerController {
 	@FXML var rb_SP2 : RadioButton
 	@FXML var rb_SP3 : RadioButton
 	@FXML var rb_Obs : RadioButton
+	@FXML var rb_Des : RadioButton
 	@FXML var setup_button : Button
 	@FXML var launch_button : Button
 	@FXML var stop_button : Button
@@ -99,10 +104,10 @@ class BoidsFxViewerController extends FxViewerController {
 			grid.boids([true]) [ boid |
 				gc.fill = getColor(boid.group)
 				gc.stroke = getColor(boid.group)
-				gc.strokeOval(boid.position.x, boid.position.y, 15, 15)
+				gc.strokeOval(boid.position.x-7, boid.position.y-7, 15, 15)
 				gc.fillArc(
-					boid.position.x,
-					boid.position.y,
+					boid.position.x-7,
+					boid.position.y-7,
 					15.0,
 					15.0,
 					Math.toDegrees(-boid.speed.angle) - 210.0,
@@ -155,6 +160,7 @@ class BoidsFxViewerController extends FxViewerController {
 		rb_SP2.disable = false
 		rb_SP3.disable = false
 		rb_Obs.disable = false
+		rb_Des.disable = false
 		
 		if (!areaCreated) {
 			emitToAgents(new CreateArea)
@@ -162,6 +168,7 @@ class BoidsFxViewerController extends FxViewerController {
 		} else {
 			emitToAgents(new Freeze(false))
 		}
+		paused = false
 	}
 
 	/** Stop.
@@ -170,6 +177,14 @@ class BoidsFxViewerController extends FxViewerController {
 		stop_button.disable = true
 		launch_button.disable = false
 		emitToAgents(new Freeze(true))
+		paused = true
+	}
+	
+	@FXML protected def keyboardInput(evt : KeyEvent){
+		if(evt.getCode == KeyCode.P && launched){
+			if (paused) actionLaunch
+			else actionStop
+		}
 	}
 
 /*
@@ -179,7 +194,9 @@ class BoidsFxViewerController extends FxViewerController {
 		var mouse = new Vector2d(draw_zone.parentToLocal(new Point2D(evt.sceneX, evt.sceneY)).x,
 			draw_zone.parentToLocal(new Point2D(evt.sceneX,evt.sceneY)).y)
 		
-		if (mode == -2){ // create obstacle mode
+		if(mode == -3){ // destruct mode
+			emitToAgents(new DestructRequest(mouse))
+		}else if (mode == -2){ // create obstacle mode
 			obsP1 = mouse
 		}else if (mode == -1) { // move boids mode
 			grid.boids([boidPos| boidPos.position.moins(mouse).length < 15]) [boidPos|
@@ -255,6 +272,9 @@ class BoidsFxViewerController extends FxViewerController {
 	}
 	@FXML protected def actionRBObs {
 		mode = -2
+	}
+	@FXML protected def actionRBDes {
+		mode = -3
 	}
 	
 	def getColor(group : int) : Color{

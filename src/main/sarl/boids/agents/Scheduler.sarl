@@ -27,6 +27,9 @@ import io.sarl.core.DefaultContextInteractions
 import boids.events.BoidCreate
 import boids.events.Pause
 import boids.events.ObstacleCreate
+import boids.events.Destruct
+import boids.environment.ObsPos
+import boids.events.StopBoid
 
 /** 
  * @author Kiéran
@@ -55,6 +58,7 @@ agent Scheduler {
 	var nextObsP1 : Vector2d
 	var nextObsP2 : Vector2d
 	var newObstacleRequest = false
+	var nextDestroy : Vector2d
 
 	on Initialize [!occurrence.parameters.empty] {
 		loggingName = "SCHEDULER"
@@ -128,6 +132,10 @@ agent Scheduler {
 				nextObsP2=null
 				newObstacleRequest=false
 			}
+			if(nextDestroy != null){
+				searchAndDest(nextDestroy)
+				nextDestroy=null
+			}
 			if (!paused && !exited) {
 				// process intents from all boids
 				for (boidID : boidsList) {
@@ -197,6 +205,10 @@ agent Scheduler {
 		this.newObstacleRequest = true
 	}
 	
+	on Destruct {
+		this.nextDestroy = occurrence.pos
+	}
+	
 	def generatePerception(boidID : UUID){
 		var boidPos = grid.getBoidPos(boidID)
 		var perception = new Perception(boidPos)
@@ -220,5 +232,39 @@ agent Scheduler {
 	
 	def spawnObstacle(p1 : Vector2d, p2 : Vector2d){
 		grid.setObstaclePosition(p1,p2)
+	}
+	
+	def searchAndDest(p : Vector2d){
+		var nearestBoid : UUID
+		var nearestObs  : ObsPos
+		var dist = Double.MAX_VALUE
+		
+		for (id : boidsList){
+			if (nearestBoid === null || grid.getBoidPos(id).distance(p) < dist) {
+				nearestBoid = id
+				dist = grid.getBoidPos(id).distance(p)
+			}
+			
+		}
+		
+		for (obs : grid.obsList){
+			if (obs.getNearestPoint(p).moins(p).length <= dist) {
+				nearestBoid = null
+				nearestObs = obs
+				dist = obs.getNearestPoint(p).moins(p).length
+			}
+		}
+		
+		if (dist <= Configuration.DESTROY_DISTANCE){
+			if (nearestBoid !== null){
+				// destruction boid
+				innerContext.defaultSpace.emit(nearestBoid, new StopBoid(nearestBoid))
+				grid.removeBoidPosition(nearestBoid)
+				boidsList.remove(nearestBoid)
+				intents.remove(nearestBoid)
+			}else if (nearestObs !== null){
+				grid.obsList.remove(nearestObs)
+			}
+		}
 	}
 }

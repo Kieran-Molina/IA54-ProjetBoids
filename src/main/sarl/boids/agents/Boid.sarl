@@ -12,6 +12,7 @@ import java.util.ArrayList
 import java.util.Random
 import boids.environment.ObsPos
 import boids.Configuration
+import boids.events.StopBoid
 
 agent Boid {
 	
@@ -32,8 +33,12 @@ agent Boid {
 	}
 	/** Kill itself after an Exit signal.
 	 */
-	on AppExit {
+	on AppExit [!occurrence.isFromMe] {
 		emit(new AppExit)
+		killMe
+	}
+	
+	on StopBoid [occurrence.id == ID] {
 		killMe
 	}
 	

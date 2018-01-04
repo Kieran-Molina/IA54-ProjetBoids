@@ -10,9 +10,12 @@ final class Configuration {
 	public static val BOIDS_REPULSION = 15.0
 	public static val OBSTACLE_REPULSION = 20.0
 	
-	public static val GROUP_COHESION = 0.4
+	public static val GROUP_COHESION = 0.02
 	public static val GROUP_SEPARATION = 15.0
 	public static val GROUP_ALIGNMENT = 1.0
+	
+	
+	public static val DESTROY_DISTANCE = 15
 	
 	private new() {
 	}

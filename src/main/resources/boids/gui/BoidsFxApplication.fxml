@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane fx:id="main_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boids.gui.BoidsFxViewerController">
+<Pane fx:id="main_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyboardInput" prefHeight="770.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boids.gui.BoidsFxViewerController">
    <children>
       <Canvas fx:id="draw_zone" height="739.0" layoutX="245.0" layoutY="16.0" onMouseDragged="#actionMouseDragged" onMousePressed="#actionMousePressed" onMouseReleased="#actionMouseReleased" rotate="180.0" width="1041.0" />
       <Button fx:id="setup_button" layoutX="26.0" layoutY="45.0" mnemonicParsing="false" onAction="#actionSetup" text="%SetupButtonText">
@@ -70,6 +70,7 @@
             <RadioButton fx:id="rb_SP2" disable="true" layoutX="14.0" layoutY="80.0" mnemonicParsing="false" onAction="#actionRB2" text="%MouseSP2" textFill="#f9fafb" toggleGroup="$mode" />
             <RadioButton fx:id="rb_SP3" disable="true" layoutX="14.0" layoutY="97.0" mnemonicParsing="false" onAction="#actionRB3" text="%MouseSP3" textFill="#f9fafb" toggleGroup="$mode" />
             <RadioButton fx:id="rb_Obs" disable="true" layoutX="14.0" layoutY="126.0" mnemonicParsing="false" onAction="#actionRBObs" text="%MouseObs" textFill="#f9fafb" toggleGroup="$mode" />
+            <RadioButton fx:id="rb_Des" disable="true" layoutX="14.0" layoutY="154.0" mnemonicParsing="false" onAction="#actionRBDes" text="%MouseDes" textFill="#f9fafb" toggleGroup="$mode" />
          </children>
       </AnchorPane>
    </children>
