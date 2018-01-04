@@ -7,6 +7,13 @@ final class Configuration {
 	public static val MAX_FORCE = 10.0
 	public static val MAX_RANGE = 100.0
 	
+	public static val BOIDS_REPULSION = 15.0
+	public static val OBSTACLE_REPULSION = 20.0
+	
+	public static val GROUP_COHESION = 0.4
+	public static val GROUP_SEPARATION = 15.0
+	public static val GROUP_ALIGNMENT = 1.0
+	
 	private new() {
 	}
 

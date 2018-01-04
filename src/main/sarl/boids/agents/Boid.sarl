@@ -11,6 +11,7 @@ import io.sarl.core.Lifecycle
 import java.util.ArrayList
 import java.util.Random
 import boids.environment.ObsPos
+import boids.Configuration
 
 agent Boid {
 	
@@ -26,8 +27,8 @@ agent Boid {
 	on Initialize [!occurrence.parameters.empty] {
 		position = occurrence.parameters.get(0) as Vector2d
 		group = occurrence.parameters.get(1) as Integer
-		intent = new Vector2d(0,0)
-		speed = new Vector2d(0,0)
+		intent = new Vector2d(0.0,0.0)
+		speed = new Vector2d(0.0,0.0)
 	}
 	/** Kill itself after an Exit signal.
 	 */
@@ -64,7 +65,7 @@ agent Boid {
 	}
 	
 	def repulsionForce(others : ArrayList<BoidPos>) : Vector2d {
-		var force = new Vector2d(0,0)
+		var force = new Vector2d(0.0,0.0)
 		var tmp= new Vector2d
 		var len : double
 		
@@ -73,7 +74,7 @@ agent Boid {
 					tmp.setXY(position)
 					tmp.retrancher(otherBoid.position)
 					len = tmp.length
-					tmp.fois( 3 / (len*len) )
+					tmp.fois( Configuration.BOIDS_REPULSION as double / (len*len) )
 					force.ajouter(tmp)
 			}
 		}
@@ -94,9 +95,9 @@ agent Boid {
 		// calcul du barycentre...
 		if (nbTot > 0)
 		{
-			force.fois(1 / (nbTot))
-			force.retrancher(position)
-			force.fois(0.1)
+			force.fois(1.0 / nbTot)
+			force.retrancher(this.position)
+			force.fois(Configuration.GROUP_COHESION as double)
 		}
 		return force
 	}
@@ -110,14 +111,14 @@ agent Boid {
 				tmp.setXY(otherBoid.speed)
 				if (tmp.length > 0) {
 					nbTot++
-					tmp.fois( 1 / tmp.length)
+					tmp.fois( 1.0 / tmp.length)
 					force.ajouter(tmp)
 				}
 			}
 		}
 		
 		if (nbTot > 0) {
-			force.fois( 0.05 / nbTot )
+			force.fois(Configuration.GROUP_ALIGNMENT as double / nbTot)
 		}
 		return force
 	}
@@ -132,7 +133,7 @@ agent Boid {
 				tmp.retrancher(otherBoid.position)
 				len = tmp.length
 				// force en 1/r
-				tmp.fois( 5 / (len*len) )
+				tmp.fois(Configuration.GROUP_SEPARATION as double / (len * len))
 				force.ajouter(tmp)
 			}
 		}
@@ -148,7 +149,7 @@ agent Boid {
 				tmp.setXY(position)
 				tmp.retrancher(obs.getNearestPoint(position))
 				len = tmp.length
-				tmp.fois(20 / (len * len))
+				tmp.fois(Configuration.OBSTACLE_REPULSION as double / (len * len))
 				force.ajouter(tmp)
 		}
 		return force

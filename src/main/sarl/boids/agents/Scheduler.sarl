@@ -14,7 +14,6 @@ import static extension javafx.util.Duration.*
 import io.sarl.core.InnerContextAccess
 import io.sarl.core.Lifecycle
 import io.sarl.core.Destroy
-import boids.events.Freeze
 import boids.events.Perception
 import boids.Configuration
 import java.util.UUID
@@ -25,7 +24,6 @@ import java.util.Random
 import java.util.TreeMap
 import boids.events.Intent
 import io.sarl.core.DefaultContextInteractions
-import boids.events.BoidRequest
 import boids.events.BoidCreate
 import boids.events.Pause
 import boids.events.ObstacleCreate
@@ -86,7 +84,7 @@ agent Scheduler {
 			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 3)
 		}
 		
-		this.spawnObstacle(new Vector2d(10,100),new Vector2d(100,10))
+		//this.spawnObstacle(new Vector2d(400,500),new Vector2d(500,400))
 	}
 
 	on Destroy {
@@ -115,21 +113,22 @@ agent Scheduler {
 		
 		var wait = new PauseTransition(0.06.seconds)
 		wait.onFinished = [
+			
+			// create new boid if requested
+			if (newBoidRequest){
+				spawnBoid(nextBoidPos, nextBoidGroup)
+				info("created new boid")
+				nextBoidPos = null
+				newBoidRequest=false
+			}
+			// create new Obstacle if requested
+			if(newObstacleRequest){
+				spawnObstacle(nextObsP1,nextObsP2)
+				nextObsP1=null
+				nextObsP2=null
+				newObstacleRequest=false
+			}
 			if (!paused && !exited) {
-				// create new boid if requested
-				if (newBoidRequest){
-					spawnBoid(nextBoidPos, nextBoidGroup)
-					info("created new boid")
-					nextBoidPos = null
-					newBoidRequest=false
-				}
-				// create new Obstacle if requested
-				if(newObstacleRequest){
-					spawnObstacle(nextObsP1,nextObsP2)
-					nextObsP1=null
-					nextObsP2=null
-					newObstacleRequest=false
-				}
 				// process intents from all boids
 				for (boidID : boidsList) {
 					var actual = grid.getBoidPos(boidID)
