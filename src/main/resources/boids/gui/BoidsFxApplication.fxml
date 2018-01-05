@@ -13,7 +13,7 @@
 <Pane fx:id="main_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyboardInput" prefHeight="770.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boids.gui.BoidsFxViewerController">
    <children>
       <Canvas fx:id="draw_zone" height="739.0" layoutX="245.0" layoutY="16.0" onMouseDragged="#actionMouseDragged" onMousePressed="#actionMousePressed" onMouseReleased="#actionMouseReleased" width="1041.0" />
-      <Button fx:id="setup_button" layoutX="26.0" layoutY="45.0" mnemonicParsing="false" onAction="#actionSetup" text="%SetupButtonText">
+      <Button fx:id="setup_button" layoutX="27.0" layoutY="303.0" mnemonicParsing="false" onAction="#actionSetup" text="%Void">
          <tooltip>
             <Tooltip text="%SetupButtonTooltip" />
          </tooltip></Button>
@@ -74,8 +74,13 @@
             <RadioButton fx:id="rb_WP" disable="true" layoutX="14.0" layoutY="143.0" mnemonicParsing="false" onAction="#actionRBWP" text="%MouseWP" textFill="#f9fafb" toggleGroup="$mode" />
          </children>
       </AnchorPane>
-      <Button fx:id="preset1_button" layoutX="29.0" layoutY="339.0" mnemonicParsing="false" onAction="#actionPreset1" text="%Preset1" />
-      <Button fx:id="preset2_button" layoutX="143.0" layoutY="339.0" mnemonicParsing="false" onAction="#actionPreset2" text="%Preset2" />
-      <Label layoutX="93.0" layoutY="307.0" text="%OR" />
+      <Button fx:id="preset1_button" layoutX="77.0" layoutY="303.0" mnemonicParsing="false" onAction="#actionPreset1" text="%Preset1" />
+      <Button fx:id="preset2_button" layoutX="141.0" layoutY="303.0" mnemonicParsing="false" onAction="#actionPreset2" text="%Preset2" />
+      <Label layoutX="31.0" layoutY="62.0" text="%Setup" />
+      <Button fx:id="reset_button" disable="true" layoutX="82.0" layoutY="345.0" mnemonicParsing="false" onAction="#actionReset" text="%Reset">
+         <tooltip>
+            <Tooltip text="%SetupButtonTooltip" />
+         </tooltip>
+      </Button>
    </children>
 </Pane>

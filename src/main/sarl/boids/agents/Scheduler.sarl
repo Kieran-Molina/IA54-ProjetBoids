@@ -32,6 +32,8 @@ import boids.environment.ObsPos
 import boids.events.StopBoid
 import boids.environment.WayPoint
 import boids.events.WaypointCreate
+import boids.events.Reset
+import io.sarl.core.MemberLeft
 
 /** 
  * @author Kiéran
@@ -186,6 +188,13 @@ agent Scheduler {
 	
 	on Intent{
 		intents.put(occurrence.source.UUID, occurrence.influence)
+	}
+	
+	on Reset [!occurrence.isFromMe]{
+		exited = true
+		for (boidID : boidsList){
+			innerContext.defaultSpace.emit(boidID, new StopBoid(boidID))
+		}
 	}
 	
 	on BoidCreate {
@@ -372,5 +381,9 @@ agent Scheduler {
 		for (var i = 0; i < boids3Quantity; i++) {
 			this.spawnBoid(new Vector2d(minX + (rnd.nextDouble * maxW), minY + (rnd.nextDouble * maxH)), 3)
 		}
+	}
+
+	on MemberLeft [occurrence.inInnerDefaultSpace && memberAgentCount == 0 && exited] {
+		killMe
 	}
 }

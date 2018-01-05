@@ -121,6 +121,8 @@ event WaypointRequest {
 	}
 }
 
+event ResetRequest
+
 event BoidCreate {
 	val group : int
 	val pos : Vector2d
@@ -156,6 +158,8 @@ event WaypointCreate {
 		pos = p
 	}
 }
+
+event Reset
 
 event Intent {
 	val influence : Vector2d

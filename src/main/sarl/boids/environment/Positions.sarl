@@ -189,5 +189,11 @@ class Positions {
 	def getSize : int{
 		boids.size
 	}
+	
+	def clean{
+		boids.clear
+		obstacles.clear
+		waypoints.clear
+	}
 
 }

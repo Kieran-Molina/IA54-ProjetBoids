@@ -26,12 +26,14 @@ import boids.events.DestructRequest
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode
 import boids.events.WaypointRequest
+import boids.events.ResetRequest
 
 /** JavaFX controller for fireworks.
  */
 class BoidsFxViewerController extends FxViewerController {
 
 	var launched = false
+	var firstStart = true
 	var paused = true
 	var areaCreated = false
 	var grid : Positions
@@ -59,6 +61,7 @@ class BoidsFxViewerController extends FxViewerController {
 	@FXML var rb_WP : RadioButton
 	@FXML var rb_Des : RadioButton
 	@FXML var setup_button : Button
+	@FXML var reset_button : Button
 	@FXML var preset1_button : Button
 	@FXML var preset2_button : Button
 	@FXML var launch_button : Button
@@ -68,22 +71,22 @@ class BoidsFxViewerController extends FxViewerController {
 	/**  Get boids 0 quantity.
 	 */
 	def getBoids0Quantity : int {
-		boids0_quantity_input.value as int
+		boids0_quantity_input.value.intValue
 	}
 	/** Get boids 1 quantity.
 	 */
 	def getBoids1Quantity : int {
-		boids1_quantity_input.value as int
+		boids1_quantity_input.value.intValue
 	}
 	/** Get boids 2 quantity.
 	 */
 	def getBoids2Quantity : int {
-		boids2_quantity_input.value as int
+		boids2_quantity_input.value.intValue
 	}
 	/** Get boids 4 quantity.
 	 */
 	def getBoids3Quantity : int {
-		boids3_quantity_input.value as int
+		boids3_quantity_input.value.intValue
 	}
 
 
@@ -156,9 +159,14 @@ class BoidsFxViewerController extends FxViewerController {
 			map
 		)
 		if (!launched) {
-			startAgentApplication() [
+			if(firstStart){
+				startAgentApplication() [
+					emitToAgents(^event)
+				]
+				firstStart=false
+			}else{
 				emitToAgents(^event)
-			]
+			}
 			launch_button.disable = false
 			launched = true
 			areaCreated = false
@@ -167,11 +175,36 @@ class BoidsFxViewerController extends FxViewerController {
 			boids2_quantity_input.disable = true
 			boids3_quantity_input.disable = true
 			setup_button.disable = true
+			reset_button.disable = false
 			preset1_button.disable = true
 			preset2_button.disable = true
 		} else {
 			emitToAgents(^event)
 		}
+	}
+	
+	@FXML protected def actionReset {
+		emitToAgents(new ResetRequest)
+		launch_button.disable = true
+		stop_button.disable = true
+		setup_button.disable = false
+		reset_button.disable = true
+		rb_move.disable = true
+		rb_SP0.disable = true
+		rb_SP1.disable = true
+		rb_SP2.disable = true
+		rb_SP3.disable = true
+		rb_Obs.disable = true
+		rb_WP.disable = true
+		rb_Des.disable = true
+		launched = false
+		areaCreated = false
+		boids0_quantity_input.disable = false
+		boids1_quantity_input.disable = false
+		boids2_quantity_input.disable = false
+		boids3_quantity_input.disable = false
+		preset1_button.disable = false
+		preset2_button.disable = false
 	}
 
 	/** Launch boids.
@@ -261,25 +294,25 @@ class BoidsFxViewerController extends FxViewerController {
 	 */
 	@FXML protected def actionBoids0QuantityDisplay {
 		boids0_quantity_input.valueProperty.addListener [
-			boids0_quantity_display.text = String::format("%.0f", boids0_quantity_input.value)
+			boids0_quantity_display.text = "" + boids0_quantity_input.value.intValue
 		]
 	}
 
 	@FXML protected def actionBoids1QuantityDisplay {
 		boids1_quantity_input.valueProperty().addListener [
-			boids1_quantity_display.setText(String.format("%.0f", boids1_quantity_input.getValue()));
+			boids1_quantity_display.text = "" + boids1_quantity_input.value.intValue
 		];
 	}
 
 	@FXML protected def actionBoids2QuantityDisplay {
 		boids2_quantity_input.valueProperty().addListener [
-			boids2_quantity_display.setText(String.format("%.0f", boids2_quantity_input.getValue()));
+			boids2_quantity_display.text = "" + boids2_quantity_input.value.intValue
 		];
 	}
 
 	@FXML protected def actionBoids3QuantityDisplay {
 		boids3_quantity_input.valueProperty().addListener [
-			boids3_quantity_display.setText(String.format("%.0f", boids3_quantity_input.getValue()));
+			boids3_quantity_display.text = "" + boids3_quantity_input.value.intValue
 		];
 	}
 	

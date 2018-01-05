@@ -24,6 +24,8 @@ import boids.events.DestructRequest
 import boids.events.Destruct
 import boids.events.WaypointRequest
 import boids.events.WaypointCreate
+import boids.events.ResetRequest
+import boids.events.Reset
 
 /*
  * The main agent able to communicate with the GUI
@@ -113,6 +115,12 @@ agent LaunchingArea {
 	 */
 	on DestructRequest [!occurrence.isFromMe] {
 		innerContext.defaultSpace.emit(ID, new Destruct(occurrence.pos))
+	}
+	/** Process reset signal.
+	 */
+	on ResetRequest [!occurrence.isFromMe] {
+		innerContext.defaultSpace.emit(ID, new Reset)
+		grid.clean
 	}
 
 	/*
