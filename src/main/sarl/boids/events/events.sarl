@@ -68,13 +68,15 @@ event Perception {
 		 * contains the boid himself and all obstacles in range
 		 */
 	val own : BoidPos
+	val id : UUID
 	val others : ArrayList<BoidPos>
 	val obstacles : ArrayList<ObsPos>
 	
-	new (own : BoidPos) {
+	new (id : UUID, own : BoidPos) {
 		this.others = new ArrayList
 		this.obstacles = new ArrayList
 		this.own = own
+		this.id = id
 	}
 }
 

@@ -107,7 +107,7 @@ agent LaunchingArea {
 	}
 
 	/*
-	 * Start all RocketLauncher when everything is ready
+	 * Start scheduler when ready
 	 */
 	on MemberJoined [occurrence.inInnerDefaultSpace && memberAgentCount == 1] {
 		info("Scheduler is Ready. Sending Launch signal.")

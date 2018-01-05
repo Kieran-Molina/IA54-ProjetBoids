@@ -117,7 +117,6 @@ agent Scheduler {
 		
 		var wait = new PauseTransition(0.06.seconds)
 		wait.onFinished = [
-			
 			// create new boid if requested
 			if (newBoidRequest){
 				spawnBoid(nextBoidPos, nextBoidGroup)
@@ -211,7 +210,7 @@ agent Scheduler {
 	
 	def generatePerception(boidID : UUID){
 		var boidPos = grid.getBoidPos(boidID)
-		var perception = new Perception(boidPos)
+		var perception = new Perception(boidID, boidPos)
 		grid.obstacles([obs | boidPos.distance(obs.getNearestPoint(boidPos.position)) < range]) [ obs |
 			perception.obstacles.add(obs)
 		]

@@ -42,7 +42,7 @@ agent Boid {
 		killMe
 	}
 	
-	on Perception {
+	on Perception [occurrence.id == ID]{
 		// update own position
 		this.setPositionAndSpeed(occurrence.own)
 		intent = new Vector2d(0.0, 0.0)
