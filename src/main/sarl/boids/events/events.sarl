@@ -23,14 +23,16 @@ event SetupSettings {
 	val boids3Quantity : int
 	val maxH : double
 	val maxW : double
+	val map : int
 
-	new(bq0 : int, bq1 : int, bq2 : int, bq3 : int, mW : double, mH : double) {
+	new(bq0 : int, bq1 : int, bq2 : int, bq3 : int, mW : double, mH : double, mp : int) {
 		boids0Quantity = bq0
 		boids1Quantity = bq1
 		boids2Quantity = bq2
 		boids3Quantity = bq3
 		maxH = mH
 		maxW = mW
+		map = mp
 	}
 
 }

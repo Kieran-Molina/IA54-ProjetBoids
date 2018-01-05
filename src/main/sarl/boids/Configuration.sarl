@@ -6,7 +6,7 @@ final class Configuration {
 	public static val MAX_SPEED = 5.0
 	public static val MAX_FORCE = 10.0
 	public static val MAX_RANGE = 100.0
-	public static val WAYPOINTS_ACTIVATION_RANGE = 50.0
+	public static val WAYPOINTS_ACTIVATION_RANGE = 80.0
 	
 	public static val BOIDS_REPULSION = 15.0
 	public static val OBSTACLE_REPULSION = 20.0

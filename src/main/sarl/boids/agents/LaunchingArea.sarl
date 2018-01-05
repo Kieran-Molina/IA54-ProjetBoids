@@ -39,6 +39,7 @@ agent LaunchingArea {
 	var boids3Quantity : int
 	var maxWidth : double
 	var maxHeight : double
+	var map : int
 	var exited = false
 
 	/** Configure according to GUI settings.
@@ -50,6 +51,7 @@ agent LaunchingArea {
 		this.boids3Quantity = occurrence.boids3Quantity
 		this.maxWidth = occurrence.maxW
 		this.maxHeight = occurrence.maxH
+		this.map = occurrence.map
 	}
 
 	/** Kill itself on Exit signal after all inner agent are killed.
@@ -84,7 +86,7 @@ agent LaunchingArea {
 	 */
 	on CreateArea {
 		spawnInContext(typeof(Scheduler), innerContext, grid, maxWidth, maxHeight, 
-			boids0Quantity, boids1Quantity, boids2Quantity, boids3Quantity)
+			boids0Quantity, boids1Quantity, boids2Quantity, boids3Quantity, map)
 	}
 
 	/** Transmit Freeze signal.

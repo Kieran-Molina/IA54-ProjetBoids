@@ -59,6 +59,8 @@ class BoidsFxViewerController extends FxViewerController {
 	@FXML var rb_WP : RadioButton
 	@FXML var rb_Des : RadioButton
 	@FXML var setup_button : Button
+	@FXML var preset1_button : Button
+	@FXML var preset2_button : Button
 	@FXML var launch_button : Button
 	@FXML var stop_button : Button
 
@@ -129,16 +131,29 @@ class BoidsFxViewerController extends FxViewerController {
 		wait.play
 	}
 
+	@FXML protected def actionSetup {
+		setup(0)
+	}
+
+	@FXML protected def actionPreset1 {
+		setup(1)
+	}
+
+	@FXML protected def actionPreset2 {
+		setup(2)
+	}
+
 	/** Create main SARL agent and do setup.
 	 */
-	@FXML protected def actionSetup {
+	def setup(map : int) {
 		var ^event = new SetupSettings(
 			this.boids0Quantity,
 			this.boids1Quantity,
 			this.boids2Quantity,
 			this.boids3Quantity,
 			this.draw_zone.width,
-			this.draw_zone.height
+			this.draw_zone.height,
+			map
 		)
 		if (!launched) {
 			startAgentApplication() [
@@ -152,6 +167,8 @@ class BoidsFxViewerController extends FxViewerController {
 			boids2_quantity_input.disable = true
 			boids3_quantity_input.disable = true
 			setup_button.disable = true
+			preset1_button.disable = true
+			preset2_button.disable = true
 		} else {
 			emitToAgents(^event)
 		}

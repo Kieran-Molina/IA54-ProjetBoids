@@ -49,6 +49,7 @@ agent Scheduler {
 	var boids1Quantity : int
 	var boids2Quantity : int
 	var boids3Quantity : int
+	var map : int
 	var range = Configuration.MAX_RANGE
 	var maxForce = Configuration.MAX_FORCE
 	var maxSpeed = Configuration.MAX_SPEED
@@ -72,28 +73,13 @@ agent Scheduler {
 		boids1Quantity = occurrence.parameters.get(4) as Integer
 		boids2Quantity = occurrence.parameters.get(5) as Integer
 		boids3Quantity = occurrence.parameters.get(6) as Integer
+		map = occurrence.parameters.get(7) as Integer
 		boidsList = new ArrayList<UUID>
 		intents = new TreeMap<UUID, Vector2d>
 
-		// spawn some boids
-		var rnd = new Random
 
-		for (var i = 0; i < boids0Quantity; i++) {
-			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 0)
-		}
-		for (var i = 0; i < boids1Quantity; i++) {
-			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 1)
-		}
-		for (var i = 0; i < boids2Quantity; i++) {
-			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 2)
-		}
-		for (var i = 0; i < boids3Quantity; i++) {
-			this.spawnBoid(new Vector2d(rnd.nextDouble * maxWidth, rnd.nextDouble * maxHeight), 3)
-		}
+		initMap
 		
-		//this.spawnObstacle(new Vector2d(400,500),new Vector2d(500,400))
-		this.spawnWP(new Vector2d(200, 200))
-		this.spawnWP(new Vector2d(600, 600))
 	}
 
 	on Destroy {
@@ -294,6 +280,97 @@ agent Scheduler {
 			}else if (nearestWP !== null){
 				grid.wpList.remove(nearestWP)
 			}
+		}
+	}
+	
+	def initMap {
+		var rnd = new Random
+		var minX : double
+		var maxW : double
+		var minY : double
+		var maxH : double
+		if (map == 1){
+			minX = 10.0
+			maxW = 140.0
+			minY = 10.0
+			maxH = 710.0
+
+			this.spawnObstacle(new Vector2d(160, 0), new Vector2d(260, 280))
+			this.spawnObstacle(new Vector2d(360, 0), new Vector2d(260, 280))
+			
+			this.spawnObstacle(new Vector2d(160, 740), new Vector2d(260, 470))
+			this.spawnObstacle(new Vector2d(360, 740), new Vector2d(260, 470))
+			
+			this.spawnObstacle(new Vector2d(715, 0), new Vector2d(815, 280))
+			this.spawnObstacle(new Vector2d(915, 0), new Vector2d(815, 280))
+			
+			this.spawnObstacle(new Vector2d(715, 740), new Vector2d(815, 470))
+			this.spawnObstacle(new Vector2d(915, 740), new Vector2d(815, 470))
+			
+			this.spawnObstacle(new Vector2d(425, 370), new Vector2d(535, 260))
+			this.spawnObstacle(new Vector2d(425, 370), new Vector2d(535, 480))
+			this.spawnObstacle(new Vector2d(645, 370), new Vector2d(535, 260))
+			this.spawnObstacle(new Vector2d(645, 370), new Vector2d(535, 480))
+
+			this.spawnWP(new Vector2d(950, 370))
+			this.spawnWP(new Vector2d(70, 370))
+			
+			
+		} else if (map == 2) {
+			minX = 10.0
+			maxW = 190.0
+			minY = 200.0
+			maxH = 350.0
+
+			this.spawnObstacle(new Vector2d(460, 0), new Vector2d(560, 280))
+			this.spawnObstacle(new Vector2d(660, 0), new Vector2d(560, 280))
+
+			this.spawnObstacle(new Vector2d(460, 740), new Vector2d(560, 470))
+			this.spawnObstacle(new Vector2d(660, 740), new Vector2d(560, 470))
+
+			this.spawnObstacle(new Vector2d(335, 160), new Vector2d(400, 370))
+			this.spawnObstacle(new Vector2d(335, 580), new Vector2d(400, 370))
+			this.spawnObstacle(new Vector2d(335, 160), new Vector2d(200, 160))
+			this.spawnObstacle(new Vector2d(335, 580), new Vector2d(200, 580))
+			this.spawnObstacle(new Vector2d(200, 580), new Vector2d(200, 160))
+
+			this.spawnObstacle(new Vector2d(785, 160), new Vector2d(720, 370))
+			this.spawnObstacle(new Vector2d(785, 580), new Vector2d(720, 370))
+			this.spawnObstacle(new Vector2d(785, 160), new Vector2d(920, 160))
+			this.spawnObstacle(new Vector2d(785, 580), new Vector2d(920, 580))
+			this.spawnObstacle(new Vector2d(920, 580), new Vector2d(920, 160))
+
+			this.spawnWP(new Vector2d(200, 660))
+			this.spawnWP(new Vector2d(600, 370))
+			this.spawnWP(new Vector2d(1000, 80))
+			this.spawnWP(new Vector2d(920, 660))
+			this.spawnWP(new Vector2d(520, 370))
+			this.spawnWP(new Vector2d(120, 80))
+			
+		} else {
+			minX = 0.0
+			maxW = maxWidth
+			minY = 0.0
+			maxH = maxHeight
+			
+			// this.spawnObstacle(new Vector2d(400,500),new Vector2d(500,400))
+			this.spawnWP(new Vector2d(200, 200))
+			this.spawnWP(new Vector2d(600, 600))
+		}
+
+		// spawn some boids
+	
+		for (var i = 0; i < boids0Quantity; i++) {
+			this.spawnBoid(new Vector2d(minX + (rnd.nextDouble * maxW), minY + (rnd.nextDouble * maxH)), 0)
+		}
+		for (var i = 0; i < boids1Quantity; i++) {
+			this.spawnBoid(new Vector2d(minX + (rnd.nextDouble * maxW), minY + (rnd.nextDouble * maxH)), 1)
+		}
+		for (var i = 0; i < boids2Quantity; i++) {
+			this.spawnBoid(new Vector2d(minX + (rnd.nextDouble * maxW), minY + (rnd.nextDouble * maxH)), 2)
+		}
+		for (var i = 0; i < boids3Quantity; i++) {
+			this.spawnBoid(new Vector2d(minX + (rnd.nextDouble * maxW), minY + (rnd.nextDouble * maxH)), 3)
 		}
 	}
 }
