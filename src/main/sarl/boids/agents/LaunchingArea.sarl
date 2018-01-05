@@ -22,6 +22,8 @@ import boids.events.ObstacleRequest
 import boids.events.ObstacleCreate
 import boids.events.DestructRequest
 import boids.events.Destruct
+import boids.events.WaypointRequest
+import boids.events.WaypointCreate
 
 /*
  * The main agent able to communicate with the GUI
@@ -99,6 +101,11 @@ agent LaunchingArea {
 	 */
 	on ObstacleRequest [!occurrence.isFromMe] {
 		innerContext.defaultSpace.emit(ID, new ObstacleCreate(occurrence.p1, occurrence.p2))
+	}
+	/** Transmit new obsacle signal.
+	 */
+	on WaypointRequest [!occurrence.isFromMe] {
+		innerContext.defaultSpace.emit(ID, new WaypointCreate(occurrence.pos))
 	}
 	/** Transmit destruct signal.
 	 */

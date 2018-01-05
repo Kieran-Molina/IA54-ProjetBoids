@@ -30,6 +30,8 @@ import boids.events.ObstacleCreate
 import boids.events.Destruct
 import boids.environment.ObsPos
 import boids.events.StopBoid
+import boids.environment.WayPoint
+import boids.events.WaypointCreate
 
 /** 
  * @author Kiéran
@@ -59,6 +61,7 @@ agent Scheduler {
 	var nextObsP2 : Vector2d
 	var newObstacleRequest = false
 	var nextDestroy : Vector2d
+	var nextWP : Vector2d
 
 	on Initialize [!occurrence.parameters.empty] {
 		loggingName = "SCHEDULER"
@@ -89,6 +92,8 @@ agent Scheduler {
 		}
 		
 		//this.spawnObstacle(new Vector2d(400,500),new Vector2d(500,400))
+		this.spawnWP(new Vector2d(200, 200))
+		this.spawnWP(new Vector2d(600, 600))
 	}
 
 	on Destroy {
@@ -131,7 +136,12 @@ agent Scheduler {
 				nextObsP2=null
 				newObstacleRequest=false
 			}
-			if(nextDestroy != null){
+			// create new Waypoint if requested
+			if (nextWP !== null){
+				spawnWP(nextWP)
+				nextWP = null
+			}
+			if(nextDestroy !== null){
 				searchAndDest(nextDestroy)
 				nextDestroy=null
 			}
@@ -198,6 +208,10 @@ agent Scheduler {
 		this.newBoidRequest=true
 	}
 	
+	on WaypointCreate {
+		this.nextWP=occurrence.pos
+	}
+	
 	on ObstacleCreate {
 		this.nextObsP1 = occurrence.p1
 		this.nextObsP2 = occurrence.p2
@@ -224,9 +238,13 @@ agent Scheduler {
 	}
 	
 	def spawnBoid(pos : Vector2d, group : int){
-		var idBoid = spawnInContext(typeof(Boid), innerContext, pos, group)
+		var idBoid = spawnInContext(typeof(Boid), innerContext, pos, group, grid.wpList)
 		boidsList.add(idBoid)
 		grid.setBoidPosition(idBoid, pos, new Vector2d(0,0),group)
+	}
+	
+	def spawnWP(pos : Vector2d){
+		grid.wpList.add(new WayPoint(pos))
 	}
 	
 	def spawnObstacle(p1 : Vector2d, p2 : Vector2d){
@@ -236,6 +254,7 @@ agent Scheduler {
 	def searchAndDest(p : Vector2d){
 		var nearestBoid : UUID
 		var nearestObs  : ObsPos
+		var nearestWP   : WayPoint
 		var dist = Double.MAX_VALUE
 		
 		for (id : boidsList){
@@ -253,6 +272,15 @@ agent Scheduler {
 				dist = obs.getNearestPoint(p).moins(p).length
 			}
 		}
+
+		for (wp : grid.wpList) {
+			if (wp.pos.moins(p).length <= dist) {
+				nearestBoid = null
+				nearestObs = null
+				nearestWP = wp
+				dist = wp.pos.moins(p).length
+			}
+		}
 		
 		if (dist <= Configuration.DESTROY_DISTANCE){
 			if (nearestBoid !== null){
@@ -263,6 +291,8 @@ agent Scheduler {
 				intents.remove(nearestBoid)
 			}else if (nearestObs !== null){
 				grid.obsList.remove(nearestObs)
+			}else if (nearestWP !== null){
+				grid.wpList.remove(nearestWP)
 			}
 		}
 	}

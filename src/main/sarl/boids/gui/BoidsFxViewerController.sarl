@@ -25,6 +25,7 @@ import boids.events.ObstacleRequest
 import boids.events.DestructRequest
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode
+import boids.events.WaypointRequest
 
 /** JavaFX controller for fireworks.
  */
@@ -55,6 +56,7 @@ class BoidsFxViewerController extends FxViewerController {
 	@FXML var rb_SP2 : RadioButton
 	@FXML var rb_SP3 : RadioButton
 	@FXML var rb_Obs : RadioButton
+	@FXML var rb_WP : RadioButton
 	@FXML var rb_Des : RadioButton
 	@FXML var setup_button : Button
 	@FXML var launch_button : Button
@@ -92,8 +94,15 @@ class BoidsFxViewerController extends FxViewerController {
 
 		wait.onFinished = [
 			gc.clearRect(0, 0, draw_zone.width, draw_zone.height)
-			gc.stroke = Color.GREY
 			
+			gc.stroke = Color.WHITE
+			for (var i = 0; i < grid.wpList.size; i++) {
+				var wp = grid.wpList.get(i)
+				gc.strokeOval(wp.pos.x-12, wp.pos.y-12, 25, 25)
+				gc.strokeText(""+i, wp.pos.x-2, wp.pos.y+5)
+			}
+			
+			gc.stroke = Color.GREY
 			if (obsP1 !== null && obsP2 !== null) {
 				gc.strokeLine(obsP1.x, obsP1.y, obsP2.x, obsP2.y)
 			}
@@ -160,6 +169,7 @@ class BoidsFxViewerController extends FxViewerController {
 		rb_SP2.disable = false
 		rb_SP3.disable = false
 		rb_Obs.disable = false
+		rb_WP.disable  = false
 		rb_Des.disable = false
 		
 		if (!areaCreated) {
@@ -193,8 +203,9 @@ class BoidsFxViewerController extends FxViewerController {
 	@FXML protected def actionMousePressed(evt : MouseEvent) {
 		var mouse = new Vector2d(draw_zone.parentToLocal(new Point2D(evt.sceneX, evt.sceneY)).x,
 			draw_zone.parentToLocal(new Point2D(evt.sceneX,evt.sceneY)).y)
-		
-		if(mode == -3){ // destruct mode
+		if (mode == -4) {
+			emitToAgents(new WaypointRequest(mouse))
+		}else if(mode == -3){ // destruct mode
 			emitToAgents(new DestructRequest(mouse))
 		}else if (mode == -2){ // create obstacle mode
 			obsP1 = mouse
@@ -275,6 +286,9 @@ class BoidsFxViewerController extends FxViewerController {
 	}
 	@FXML protected def actionRBDes {
 		mode = -3
+	}
+	@FXML protected def actionRBWP {
+		mode = -4
 	}
 	
 	def getColor(group : int) : Color{

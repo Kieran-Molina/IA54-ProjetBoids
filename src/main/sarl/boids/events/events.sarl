@@ -6,6 +6,7 @@ import boids.utils.Vector2d
 import java.util.ArrayList
 import boids.environment.ObsPos
 import java.util.UUID
+import boids.environment.WayPoint
 
 event Launch
 
@@ -65,16 +66,18 @@ event StopBoid{
 
 event Perception {
 			/* 
-		 * contains the boid himself and all obstacles in range
+		 * contains the boid himself, all obstacles in range and waypoints
 		 */
 	val own : BoidPos
 	val id : UUID
 	val others : ArrayList<BoidPos>
 	val obstacles : ArrayList<ObsPos>
+	val waypoints : ArrayList<WayPoint>
 	
 	new (id : UUID, own : BoidPos) {
 		this.others = new ArrayList
 		this.obstacles = new ArrayList
+		this.waypoints = new ArrayList
 		this.own = own
 		this.id = id
 	}
@@ -108,6 +111,14 @@ event ObstacleRequest {
 	}
 }
 
+event WaypointRequest {
+	val pos : Vector2d
+
+	new(p : Vector2d) {
+		pos = p
+	}
+}
+
 event BoidCreate {
 	val group : int
 	val pos : Vector2d
@@ -129,6 +140,14 @@ event ObstacleCreate {
 }
 
 event Destruct {
+	val pos : Vector2d
+
+	new(p : Vector2d) {
+		pos = p
+	}
+}
+
+event WaypointCreate {
 	val pos : Vector2d
 
 	new(p : Vector2d) {

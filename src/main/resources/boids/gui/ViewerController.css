@@ -41,6 +41,19 @@
 	-fx-text-fill: #F9FAFB;
 }
 
+#boids0_quantity_display {
+	-fx-text-fill: #FF0000;
+}
+#boids1_quantity_display {
+	-fx-text-fill: #0000FF;
+}
+#boids2_quantity_display {
+	-fx-text-fill: #00FF00;
+}
+#boids3_quantity_display {
+	-fx-text-fill: #FFFF00;
+}
+
 .button {
 	-fx-background-radius: 0em;
 	-fx-background-inserts: 0, 0, 0;

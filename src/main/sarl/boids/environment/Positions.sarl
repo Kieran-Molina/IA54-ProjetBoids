@@ -108,6 +108,24 @@ class ObsPos{
 		else return new Vector2d(pt1.x+(u*dx), pt1.y+(u*dy))
 	}
 }
+/* 
+ * Data structure used to represent a Waypoint.
+ */
+class WayPoint{
+	var pos : Vector2d
+	
+	new (pos : Vector2d){
+		this.pos = pos
+	}
+	
+	def getPos : Vector2d{
+		pos
+	}
+	
+	def setPos(p : Vector2d){
+		pos=p
+	}
+}
 
 /*
  * Data structure referencing every position of every fire and rocket existing
@@ -117,6 +135,7 @@ class Positions {
 	
 	val boids = new HashMap<UUID, BoidPos>
 	val obstacles = new ArrayList<ObsPos>
+	val waypoints = new ArrayList<WayPoint>
 
 	def setBoidPosition(id : UUID, position : Vector2d, speed : Vector2d, group : int) {
 		
@@ -157,6 +176,10 @@ class Positions {
 	
 	def obsList : ArrayList<ObsPos>{
 		obstacles
+	}
+	
+	def wpList : ArrayList<WayPoint>{
+		waypoints
 	}
 	
 	def getBoidPos(id : UUID) : BoidPos {
